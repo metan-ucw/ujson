@@ -1,0 +1,6 @@
+Parse error at line 2
+
+001: {
+002: 	"a": a
+     	     ^
+Expected object, array, number or string

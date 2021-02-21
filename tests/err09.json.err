@@ -1,0 +1,7 @@
+Parse error at line 3
+
+001: {
+002: 	"a": 1
+003: 	"b": 2
+     	^
+Expected ','

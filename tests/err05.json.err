@@ -1,0 +1,7 @@
+Parse error at line 3
+
+001: {
+002: 	"a"    
+003: }
+     ^
+Expected ':' after ID string

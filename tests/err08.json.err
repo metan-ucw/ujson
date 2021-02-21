@@ -1,0 +1,8 @@
+Parse error at line 4
+
+001: {
+002: 	"a": {
+003: 		"b": {
+004: 			"c": error
+     			     ^
+Expected object, array, number or string
