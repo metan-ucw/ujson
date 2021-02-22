@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include "ujson.h"
 
 static inline int buf_empty(struct ujson_buf *buf)
@@ -62,9 +63,98 @@ static int eatb(struct ujson_buf *buf, char ch)
 	return 1;
 }
 
+static int hex2val(unsigned char b)
+{
+	switch (b) {
+	case '0' ... '9':
+		return b - '0';
+	case 'a' ... 'f':
+		return b - 'a' + 10;
+	case 'A' ... 'F':
+		return b - 'A' + 10;
+	default:
+		return -1;
+	}
+}
+
+static int32_t parse_ucode_cp(struct ujson_buf *buf)
+{
+	int ret = 0, v, i;
+
+	for (i = 0; i < 4; i++) {
+		if ((v = hex2val(getb(buf))) < 0)
+			goto err;
+		ret *= 16;
+		ret += v;
+	}
+
+	return ret;
+err:
+	ujson_err(buf, "Expected four hexadecimal digits");
+	return -1;
+}
+
+static unsigned int utf8_bytes(uint32_t ucode_cp)
+{
+	if (ucode_cp < 0x0080)
+		return 1;
+
+	if (ucode_cp < 0x0800)
+		return 2;
+
+	if (ucode_cp < 0x10000)
+		return 3;
+
+	return 4;
+}
+
+static int to_utf8(uint32_t ucode_cp, char *buf)
+{
+	if (ucode_cp < 0x0080) {
+		buf[0] = ucode_cp & 0x00f7;
+		return 1;
+	}
+
+	if (ucode_cp < 0x0800) {
+		buf[0] = 0xc0 | (0x1f & (ucode_cp>>6));
+		buf[1] = 0x80 | (0x3f & ucode_cp);
+		return 2;
+	}
+
+	if (ucode_cp < 0x10000) {
+		buf[0] = 0xe0 | (0x0f & (ucode_cp>>12));
+		buf[1] = 0x80 | (0x3f & (ucode_cp>>6));
+		buf[2] = 0x80 | (0x3f & ucode_cp);
+		return 3;
+	}
+
+	buf[0] = 0xf0 | (0x07 & (ucode_cp>>18));
+	buf[1] = 0x80 | (0x3f & (ucode_cp>>12));
+	buf[2] = 0x80 | (0x3f & (ucode_cp>>6));
+	buf[3] = 0x80 | (0x3f & ucode_cp);
+	return 4;
+}
+
+static unsigned int parse_ucode_esc(struct ujson_buf *buf, char *str, size_t len)
+{
+	int32_t ucode = parse_ucode_cp(buf);
+
+	if (ucode < 0)
+		return 0;
+
+	if (utf8_bytes(ucode) + 1 >= len) {
+		ujson_err(buf, "String buffer too short!");
+		return 0;
+	}
+
+	return to_utf8(ucode, str);
+}
+
 static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 {
 	size_t pos = 0;
+	int esc = 0;
+	unsigned int l;
 
 	eatb(buf, '"');
 
@@ -74,18 +164,60 @@ static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 			return 1;
 		}
 
-		if (eatb(buf, '"')) {
+		if (!esc && eatb(buf, '"')) {
 			str[pos] = 0;
 			return 0;
 		}
 
-		if (pos >= len-1) {
-			ujson_err(buf, "String too long");
-			return 1;
+		char b = getb(buf);
+
+		if (!esc && b == '\\') {
+			esc = 1;
+			continue;
 		}
 
-		//TODO: Escapes
-		str[pos++] = getb(buf);
+		if (esc) {
+			switch (b) {
+			case '"':
+			case '\\':
+			case '/':
+			break;
+			case 'b':
+				b = '\b';
+			break;
+			case 'f':
+				b = '\f';
+			break;
+			case 'n':
+				b = '\n';
+			break;
+			case 'r':
+				b = '\r';
+			break;
+			case 't':
+				b = '\t';
+			break;
+			case 'u':
+				if (!(l = parse_ucode_esc(buf, &str[pos], len-pos)))
+					return 1;
+				pos += l;
+				b = 0;
+			break;
+			default:
+				ujson_err(buf, "Invalid escape \\%c", b);
+				return 1;
+			}
+			esc = 0;
+		}
+
+		if (b) {
+			if (pos + 1 >= len) {
+				ujson_err(buf, "String buffer too short!");
+				return 1;
+			}
+
+			str[pos++] = b;
+		}
 	}
 
 	return 1;
@@ -288,8 +420,10 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 
 	switch (res->type) {
 	case UJSON_STR:
-		if (copy_str(buf, res->buf, res->buf_size))
+		if (copy_str(buf, res->buf, res->buf_size)) {
+			res->type = UJSON_VOID;
 			return 0;
+		}
 		res->val_str = res->buf;
 		return 1;
 	case UJSON_INT:
@@ -470,8 +604,8 @@ void ujson_err_print(FILE *f, struct ujson_buf *buf)
 	const char *lines[ERR_LINES] = {};
 	size_t cur_line = 0;
 	size_t cur_off = 0;
-	size_t last_off = 0;
-	//printf("buf %zu\n", buf->len);
+	size_t last_off = buf->off;
+
 	for (;;) {
 		lines[(cur_line++) % ERR_LINES] = buf->json + cur_off;
 
