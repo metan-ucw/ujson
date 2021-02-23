@@ -648,7 +648,7 @@ struct ujson_buf *ujson_load(const char *path)
 	ret->json = ret->buf;
 
 	while (off < len) {
-		res = read(fd, ret->json + off, len - off);
+		res = read(fd, ret->buf + off, len - off);
 		if (res < 0) {
 			fprintf(stderr, "read() failed\n");
 			goto err1;

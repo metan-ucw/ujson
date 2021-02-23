@@ -21,7 +21,7 @@ enum ujson_type {
 
 struct ujson_buf {
 	/** Pointer to a null terminated JSON string */
-	char *json;
+	const char *json;
 	/** A length of the JSON string */
 	size_t len;
 	/** A current offset into the JSON string */
