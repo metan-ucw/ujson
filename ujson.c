@@ -305,27 +305,6 @@ static int get_number(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
-static int do_start(struct ujson_buf *buf, char ch)
-{
-	if (eatws(buf))
-		return 1;
-
-	if (!eatb(buf, ch))
-		return 1;
-
-	return 0;
-}
-
-int ujson_arr_start(struct ujson_buf *buf)
-{
-	return do_start(buf, '[');
-}
-
-int ujson_obj_start(struct ujson_buf *buf)
-{
-	return do_start(buf, '{');
-}
-
 int ujson_obj_skip(struct ujson_buf *buf)
 {
 	struct ujson_val res = {};
