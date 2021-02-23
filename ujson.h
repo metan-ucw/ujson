@@ -128,7 +128,7 @@ int ujson_obj_next(struct ujson_buf *buf, struct ujson_val *res);
  * @buf An ujson buffer.
  * @return Zero on success, non-zero otherwise.
  */
-int ujson_obj_skip(struct ujson_buf *buf) __attribute__ ((warn_unused_result));
+int ujson_obj_skip(struct ujson_buf *buf);
 
 int ujson_arr_first(struct ujson_buf *buf, struct ujson_val *res);
 int ujson_arr_next(struct ujson_buf *buf, struct ujson_val *res);
@@ -142,7 +142,7 @@ int ujson_arr_next(struct ujson_buf *buf, struct ujson_val *res);
  * @buf An ujson buffer.
  * @return Zero on success, non-zero otherwise.
  */
-int ujson_arr_skip(struct ujson_buf *buf) __attribute__ ((warn_unused_result));
+int ujson_arr_skip(struct ujson_buf *buf);
 
 /*
  * @brief Loads a file into an ujson buffer.
