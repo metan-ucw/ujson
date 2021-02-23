@@ -416,6 +416,7 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 		return 0;
 	case UJSON_ARR:
 	case UJSON_OBJ:
+		buf->sub_off = buf->off;
 		return 1;
 	}
 

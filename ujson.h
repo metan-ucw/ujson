@@ -26,6 +26,8 @@ struct ujson_buf {
 	size_t len;
 	/** A current offset into the JSON string */
 	size_t off;
+	/** An offset to the start of the last array or object */
+	size_t sub_off;
 
 	char err[UJSON_ERR_MAX];
 	char buf[];
