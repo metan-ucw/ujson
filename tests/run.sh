@@ -35,6 +35,19 @@ for i in *.json; do
 	fi
 done
 
+for i in arr_obj.json obj_obj.json str_esc.json; do
+	$(./skip $i 2>&1 > /dev/null)
+
+	if [ $? -ne 0 ]; then
+		echo "************** $i ***************"
+		./skip $i
+		echo "*********************************"
+		failed=$((failed+1))
+	else
+		passed=$((passed+1))
+	fi
+done
+
 echo
 
 rm stdout.out stderr.out

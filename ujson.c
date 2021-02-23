@@ -134,19 +134,23 @@ static int to_utf8(uint32_t ucode_cp, char *buf)
 	return 4;
 }
 
-static unsigned int parse_ucode_esc(struct ujson_buf *buf, char *str, size_t len)
+static unsigned int parse_ucode_esc(struct ujson_buf *buf, char *str,
+                                    size_t off, size_t len)
 {
 	int32_t ucode = parse_ucode_cp(buf);
 
 	if (ucode < 0)
 		return 0;
 
-	if (utf8_bytes(ucode) + 1 >= len) {
+	if (!str)
+		return ucode;
+
+	if (utf8_bytes(ucode) + 1 >= len - off) {
 		ujson_err(buf, "String buffer too short!");
 		return 0;
 	}
 
-	return to_utf8(ucode, str);
+	return to_utf8(ucode, str+off);
 }
 
 static int copy_str(struct ujson_buf *buf, char *str, size_t len)
@@ -164,7 +168,8 @@ static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 		}
 
 		if (!esc && eatb(buf, '"')) {
-			str[pos] = 0;
+			if (str)
+				str[pos] = 0;
 			return 0;
 		}
 
@@ -197,7 +202,7 @@ static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 				b = '\t';
 			break;
 			case 'u':
-				if (!(l = parse_ucode_esc(buf, &str[pos], len-pos)))
+				if (!(l = parse_ucode_esc(buf, str, pos, len)))
 					return 1;
 				pos += l;
 				b = 0;
@@ -209,7 +214,7 @@ static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 			esc = 0;
 		}
 
-		if (b) {
+		if (str && b) {
 			if (pos + 1 >= len) {
 				ujson_err(buf, "String buffer too short!");
 				return 1;
@@ -328,7 +333,7 @@ int ujson_obj_skip(struct ujson_buf *buf)
 
 int ujson_arr_skip(struct ujson_buf *buf)
 {
-	struct ujson_val res;
+	struct ujson_val res = {};
 
 	UJSON_ARR_FOREACH(buf, &res) {
 		switch (res.type) {
