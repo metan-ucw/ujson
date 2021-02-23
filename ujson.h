@@ -6,6 +6,8 @@
 #ifndef UJSON_H
 #define UJSON_H
 
+#include <stdio.h>
+
 #define UJSON_ERR_MAX 128
 #define UJSON_ID_MAX 64
 
