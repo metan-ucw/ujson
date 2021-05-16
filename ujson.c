@@ -25,7 +25,7 @@ static int eatws(struct ujson_buf *buf)
 		case ' ':
 		case '\t':
 		case '\n':
-		case '\f':
+		case '\r':
 		break;
 		default:
 			goto ret;
