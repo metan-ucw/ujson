@@ -11,6 +11,8 @@
 #define UJSON_ERR_MAX 128
 #define UJSON_ID_MAX 64
 
+#define UJSON_RECURSION_MAX 128
+
 enum ujson_type {
 	UJSON_VOID = 0,
 	UJSON_INT,
@@ -29,6 +31,10 @@ struct ujson_buf {
 	size_t off;
 	/** An offset to the start of the last array or object */
 	size_t sub_off;
+	/** Recursion depth increased when array/object is entered decreased on leave */
+	unsigned int depth;
+	/** Maximal recursion depth */
+	unsigned int max_depth;
 
 	char err[UJSON_ERR_MAX];
 	char buf[];

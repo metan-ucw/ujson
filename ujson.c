@@ -569,6 +569,7 @@ static int check_end(struct ujson_buf *buf, struct ujson_val *res, char b)
 		res->type = UJSON_VOID;
 		eatws(buf);
 		eatb(buf, 0);
+		buf->depth--;
 		return 1;
 	}
 
@@ -616,6 +617,13 @@ static int any_first(struct ujson_buf *buf, char b)
 
 	if (!eatb(buf, b)) {
 		ujson_err(buf, "Expected '%c'", b);
+		return 1;
+	}
+
+	buf->depth++;
+
+	if (buf->depth > buf->max_depth) {
+		ujson_err(buf, "Recursion too deep");
 		return 1;
 	}
 
@@ -771,6 +779,7 @@ struct ujson_buf *ujson_load(const char *path)
 
 	ret->buf[len] = 0;
 	ret->len = len;
+	ret->max_depth = UJSON_RECURSION_MAX;
 	ret->json = ret->buf;
 
 	while (off < len) {
