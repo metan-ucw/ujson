@@ -190,7 +190,15 @@ static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 			return 0;
 		}
 
-		char b = getb(buf);
+		unsigned char b = getb(buf);
+
+		if (b < 0x20) {
+			if (!peekb(buf))
+				ujson_err(buf, "Unterminated string");
+			else
+				ujson_err(buf, "Invalid string character 0x%02x", b);
+			return 1;
+		}
 
 		if (!esc && b == '\\') {
 			esc = 1;
