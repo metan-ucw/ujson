@@ -547,6 +547,8 @@ enum ujson_type ujson_start(struct ujson_buf *buf)
 
 static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 {
+	int ret = 0;
+
 	res->type = ujson_next_type(buf);
 
 	switch (res->type) {
@@ -558,18 +560,25 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 		res->val_str = res->buf;
 		return 1;
 	case UJSON_INT:
-		return !get_int(buf, res);
+		ret = get_int(buf, res);
+	break;
 	case UJSON_FLOAT:
-		return !get_float(buf, res);
+		ret = get_float(buf, res);
+	break;
 	case UJSON_BOOL:
-		return !get_bool(buf, res);
+		ret = get_bool(buf, res);
+	break;
 	case UJSON_VOID:
-		//ujson_err(buf, "Unexpected character");
 		return 0;
 	case UJSON_ARR:
 	case UJSON_OBJ:
 		buf->sub_off = buf->off;
 		return 1;
+	}
+
+	if (ret) {
+		res->type = UJSON_VOID;
+		return 0;
 	}
 
 	return 1;
