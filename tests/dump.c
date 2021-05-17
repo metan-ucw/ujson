@@ -118,8 +118,16 @@ int main(int argc, char *argv[])
 	break;
 	}
 
-	if (ujson_is_err(buf))
+	if (ujson_is_err(buf)) {
 		ujson_err_print(stderr, buf);
+		return 1;
+	}
+
+	if (!ujson_empty(buf)) {
+		ujson_err(buf, "Garbage after JSON string!");
+		ujson_err_print(stderr, buf);
+		return 1;
+	}
 
 	return 0;
 }

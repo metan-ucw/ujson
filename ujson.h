@@ -164,4 +164,14 @@ struct ujson_buf *ujson_load(const char *path);
  */
 void ujson_free(struct ujson_buf *buf);
 
+/*
+ * @brief Returns non-zero if whole buffer has been consumed.
+ *
+ * @buf And ujson buffer.
+ */
+static inline int ujson_empty(struct ujson_buf *buf)
+{
+	return buf->off >= buf->len;
+}
+
 #endif /* UJSON_H */

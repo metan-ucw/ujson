@@ -559,6 +559,8 @@ static int check_end(struct ujson_buf *buf, struct ujson_val *res, char b)
 
 	if (eatb(buf, b)) {
 		res->type = UJSON_VOID;
+		eatws(buf);
+		eatb(buf, 0);
 		return 1;
 	}
 
