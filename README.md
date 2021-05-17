@@ -1,7 +1,11 @@
 UJSON
 =====
 
-A simple JSON parser written in C.
+UJSON is:
+
+- Complete and simple JSON parser written in C
+- Produces nice and human readable error messages
+- Passes [JSONTestSuite](https://github.com/nst/JSONTestSuite)
 
 The key point of this parser is that:
 
@@ -51,3 +55,14 @@ Then you can loop recursively over arrays and objects with:
 		}
 	}
 ```
+
+
+The supported types are:
+
+* UJSON\_ARR - an array, needs to be parsed recursivelly
+* UJSON\_OBJ - an object, needs to be parsed recursivelly
+* UJSON\_INT - an integer number stored as val\_int (also sets val\_float for convinience)
+* UJSON\_FLOAT - a floating point number stored as val\_float
+* UJSON\_BOOL - a boolean stored as val\_bool
+* UJSON\_NULL - a null has no value
+* UJSON\_STR - a string, stored in user supplied buffer
