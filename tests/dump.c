@@ -37,6 +37,10 @@ static void dump_obj(struct ujson_buf *buf, unsigned int padd, const char *id)
 			do_padd(padd + 1);
 			printf("%s: %li\n", json.id, json.val_int);
 		break;
+		case UJSON_FLOAT:
+			do_padd(padd + 1);
+			printf("%s: %f\n", json.id, json.val_float);
+		break;
 		case UJSON_STR:
 			do_padd(padd + 1);
 			printf("%s: %s\n", json.id, json.val_str);
@@ -72,6 +76,10 @@ static void dump_arr(struct ujson_buf *buf, unsigned int padd, const char *id)
 		case UJSON_INT:
 			do_padd(padd + 1);
 			printf("%li\n", json.val_int);
+		break;
+		case UJSON_FLOAT:
+			do_padd(padd + 1);
+			printf("%f\n", json.val_float);
 		break;
 		case UJSON_STR:
 			do_padd(padd + 1);

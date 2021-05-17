@@ -14,6 +14,7 @@
 enum ujson_type {
 	UJSON_VOID = 0,
 	UJSON_INT,
+	UJSON_FLOAT,
 	UJSON_STR,
 	UJSON_OBJ,
 	UJSON_ARR,
@@ -45,6 +46,8 @@ struct ujson_val {
 		long val_int;
 		const char *val_str;
 	};
+
+	float val_float;
 
 	/** An ID for object values */
 	char id[UJSON_ID_MAX];

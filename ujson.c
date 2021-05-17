@@ -45,6 +45,14 @@ static char getb(struct ujson_buf *buf)
 	return buf->json[buf->off++];
 }
 
+static char peekb_off(struct ujson_buf *buf, size_t off)
+{
+	if (buf->off + off >= buf->len)
+		return 0;
+
+	return buf->json[buf->off + off];
+}
+
 static char peekb(struct ujson_buf *buf)
 {
 	if (buf_empty(buf))
@@ -56,6 +64,15 @@ static char peekb(struct ujson_buf *buf)
 static int eatb(struct ujson_buf *buf, char ch)
 {
 	if (peekb(buf) != ch)
+		return 0;
+
+	getb(buf);
+	return 1;
+}
+
+static int eatb2(struct ujson_buf *buf, char ch1, char ch2)
+{
+	if (peekb(buf) != ch1 && peekb(buf) != ch2)
 		return 0;
 
 	getb(buf);
@@ -281,18 +298,31 @@ static int is_digit(char b)
 	}
 }
 
-static int get_number(struct ujson_buf *buf, struct ujson_val *res)
+static int get_sign(struct ujson_buf *buf)
 {
-	long val = 0;
-	int neg = 0;
-
 	if (peekb(buf) == '-') {
-		neg = 1;
 		getb(buf);
 		if (!is_digit(peekb(buf))) {
 			ujson_err(buf, "Expected digits after '-'");
-			return 1;
+			return 0;
 		}
+		return -1;
+	}
+
+	return 1;
+}
+
+static int get_int(struct ujson_buf *buf, struct ujson_val *res)
+{
+	long val = 0;
+	int sign;
+
+	if (!(sign = get_sign(buf)))
+		return 1;
+
+	if (peekb(buf) == '0') {
+		ujson_err(buf, "Leading zero in number!");
+		return 1;
 	}
 
 	while (is_digit(peekb(buf))) {
@@ -301,10 +331,68 @@ static int get_number(struct ujson_buf *buf, struct ujson_val *res)
 		//TODO: overflow?
 	}
 
-	if (neg)
+	if (sign < 0)
 		val = -val;
 
 	res->val_int = val;
+	res->val_float = val;
+
+	return 0;
+}
+
+static int eat_digits(struct ujson_buf *buf)
+{
+	if (!is_digit(peekb(buf))) {
+		ujson_err(buf, "Expected digit(s)");
+		return 1;
+	}
+
+	while (is_digit(peekb(buf)))
+		getb(buf);
+
+	return 0;
+}
+
+static int get_float(struct ujson_buf *buf, struct ujson_val *res)
+{
+	off_t start = buf->off;
+
+	eatb(buf, '-');
+
+	if (peekb(buf) == '0' && is_digit(peekb_off(buf, 1))) {
+		ujson_err(buf, "Leading zero in float");
+		return 1;
+	}
+
+	if (eat_digits(buf))
+		return 1;
+
+	switch (getb(buf)) {
+	case '.':
+		if (eat_digits(buf))
+			return 1;
+
+		if (!eatb2(buf, 'e', 'E'))
+			break;
+
+		/* fallthrough */
+	case 'e':
+	case 'E':
+		eatb2(buf, '+', '-');
+
+		if (eat_digits(buf))
+			return 1;
+	break;
+	}
+
+	size_t len = buf->off - start;
+	char tmp[len+1];
+
+	memcpy(tmp, buf->json + start, len);
+
+	tmp[len] = 0;
+
+	res->val_float = atof(tmp);
 
 	return 0;
 }
@@ -353,6 +441,27 @@ int ujson_arr_skip(struct ujson_buf *buf)
 	return 0;
 }
 
+static enum ujson_type next_num_type(struct ujson_buf *buf)
+{
+	size_t off = 0;
+
+	for (;;) {
+		char b = peekb_off(buf, off++);
+
+		switch (b) {
+		case 0:
+		case ',':
+			return UJSON_INT;
+		case '.':
+		case 'e':
+		case 'E':
+			return UJSON_FLOAT;
+		}
+	}
+
+	return UJSON_VOID;
+}
+
 enum ujson_type ujson_next_type(struct ujson_buf *buf)
 {
 	if (eatws(buf)) {
@@ -371,7 +480,7 @@ enum ujson_type ujson_next_type(struct ujson_buf *buf)
 		return UJSON_STR;
 	case '-':
 	case '0' ... '9':
-		return UJSON_INT;
+		return next_num_type(buf);
 	default:
 		ujson_err(buf, "Expected object, array, number or string");
 		return UJSON_VOID;
@@ -387,8 +496,7 @@ enum ujson_type ujson_start(struct ujson_buf *buf)
 	case UJSON_OBJ:
 	case UJSON_VOID:
 	break;
-	case UJSON_INT:
-	case UJSON_STR:
+	default:
 		ujson_err(buf, "JSON can start only with array or object");
 		type = UJSON_VOID;
 	break;
@@ -410,7 +518,9 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 		res->val_str = res->buf;
 		return 1;
 	case UJSON_INT:
-		return !get_number(buf, res);
+		return !get_int(buf, res);
+	case UJSON_FLOAT:
+		return !get_float(buf, res);
 	case UJSON_VOID:
 		//ujson_err(buf, "Unexpected character");
 		return 0;
