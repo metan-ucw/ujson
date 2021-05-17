@@ -317,29 +317,15 @@ static int is_digit(char b)
 	}
 }
 
-static int get_sign(struct ujson_buf *buf)
-{
-	if (peekb(buf) == '-') {
-		getb(buf);
-		if (!is_digit(peekb(buf))) {
-			ujson_err(buf, "Expected digits after '-'");
-			return 0;
-		}
-		return -1;
-	}
-
-	return 1;
-}
-
 static int get_int(struct ujson_buf *buf, struct ujson_val *res)
 {
 	long val = 0;
-	int sign;
+	int sign = 1;
 
-	if (!(sign = get_sign(buf)))
-		return 1;
+	if (eatb(buf, '-'))
+		sign = -1;
 
-	if (peekb(buf) == '0') {
+	if (peekb(buf) == '0' && is_digit(peekb_off(buf, 1))) {
 		ujson_err(buf, "Leading zero in number!");
 		return 1;
 	}
