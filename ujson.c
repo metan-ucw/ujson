@@ -322,8 +322,13 @@ static int get_int(struct ujson_buf *buf, struct ujson_val *res)
 	long val = 0;
 	int sign = 1;
 
-	if (eatb(buf, '-'))
+	if (eatb(buf, '-')) {
 		sign = -1;
+		if (!is_digit(peekb(buf))) {
+			ujson_err(buf, "Expected digit(s)");
+			return 1;
+		}
+	}
 
 	if (peekb(buf) == '0' && is_digit(peekb_off(buf, 1))) {
 		ujson_err(buf, "Leading zero in number!");
