@@ -431,6 +431,16 @@ static int get_bool(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
+static int get_null(struct ujson_buf *buf)
+{
+	if (!eatstr(buf, "null")) {
+		ujson_err(buf, "Expected 'null'");
+		return 1;
+	}
+
+	return 0;
+}
+
 int ujson_obj_skip(struct ujson_buf *buf)
 {
 	struct ujson_val res = {};
@@ -496,8 +506,6 @@ static enum ujson_type next_num_type(struct ujson_buf *buf)
 	return UJSON_VOID;
 }
 
-
-
 enum ujson_type ujson_next_type(struct ujson_buf *buf)
 {
 	if (eatws(buf)) {
@@ -520,6 +528,9 @@ enum ujson_type ujson_next_type(struct ujson_buf *buf)
 	case 'f':
 	case 't':
 		return UJSON_BOOL;
+	break;
+	case 'n':
+		return UJSON_NULL;
 	break;
 	default:
 		ujson_err(buf, "Expected object, array, number or string");
@@ -567,6 +578,9 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 	break;
 	case UJSON_BOOL:
 		ret = get_bool(buf, res);
+	break;
+	case UJSON_NULL:
+		ret = get_null(buf);
 	break;
 	case UJSON_VOID:
 		return 0;
