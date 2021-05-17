@@ -17,6 +17,7 @@ enum ujson_type {
 	UJSON_VOID = 0,
 	UJSON_INT,
 	UJSON_FLOAT,
+	UJSON_BOOL,
 	UJSON_STR,
 	UJSON_OBJ,
 	UJSON_ARR,
@@ -49,6 +50,7 @@ struct ujson_val {
 
 	/** An union to store the parsed value into. */
 	union {
+		int val_bool;
 		long val_int;
 		const char *val_str;
 	};

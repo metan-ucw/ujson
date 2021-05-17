@@ -79,6 +79,17 @@ static int eatb2(struct ujson_buf *buf, char ch1, char ch2)
 	return 1;
 }
 
+static int eatstr(struct ujson_buf *buf, const char *str)
+{
+	while (*str) {
+		if (!eatb(buf, *str))
+			return 0;
+		str++;
+	}
+
+	return 1;
+}
+
 static int hex2val(unsigned char b)
 {
 	switch (b) {
@@ -405,6 +416,30 @@ static int get_float(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
+static int get_bool(struct ujson_buf *buf, struct ujson_val *res)
+{
+	switch (peekb(buf)) {
+	case 'f':
+		if (!eatstr(buf, "false")) {
+			ujson_err(buf, "Expected 'false'");
+			return 1;
+		}
+
+		res->val_bool = 0;
+	break;
+	case 't':
+		if (!eatstr(buf, "true")) {
+			ujson_err(buf, "Expected 'true'");
+			return 1;
+		}
+
+		res->val_bool = 1;
+	break;
+	}
+
+	return 0;
+}
+
 int ujson_obj_skip(struct ujson_buf *buf)
 {
 	struct ujson_val res = {};
@@ -470,6 +505,8 @@ static enum ujson_type next_num_type(struct ujson_buf *buf)
 	return UJSON_VOID;
 }
 
+
+
 enum ujson_type ujson_next_type(struct ujson_buf *buf)
 {
 	if (eatws(buf)) {
@@ -489,6 +526,10 @@ enum ujson_type ujson_next_type(struct ujson_buf *buf)
 	case '-':
 	case '0' ... '9':
 		return next_num_type(buf);
+	case 'f':
+	case 't':
+		return UJSON_BOOL;
+	break;
 	default:
 		ujson_err(buf, "Expected object, array, number or string");
 		return UJSON_VOID;
@@ -529,6 +570,8 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 		return !get_int(buf, res);
 	case UJSON_FLOAT:
 		return !get_float(buf, res);
+	case UJSON_BOOL:
+		return !get_bool(buf, res);
 	case UJSON_VOID:
 		//ujson_err(buf, "Unexpected character");
 		return 0;
