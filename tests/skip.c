@@ -35,5 +35,11 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	if (!ujson_empty(buf)) {
+		ujson_err(buf, "Garbage after JSON string!");
+		ujson_err_print(stderr, buf);
+		return 1;
+	}
+
 	return 0;
 }

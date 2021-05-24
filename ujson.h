@@ -136,6 +136,49 @@ int ujson_obj_next(struct ujson_buf *buf, struct ujson_val *res);
 #define UJSON_OBJ_FOREACH(buf, res) \
 	for (ujson_obj_first(buf, res); ujson_valid(res); ujson_obj_next(buf, res))
 
+enum ujson_obj_list_flags {
+	UJSON_OBJ_LIST_SKIP,
+	UJSON_OBJ_LIST_FILTER,
+};
+
+struct ujson_obj_list {
+	/** Analphabetically sorted list of keys */
+	const char *const *key_list;
+	/** List size */
+	size_t key_list_len;
+	/** Describes if keys in list should be filtered out/skipped */
+	enum ujson_obj_list_flags flags;
+};
+
+/*
+ * @brief Utility function for n*log(n) lookup in a sorted list.
+ *
+ * @list Analphabetically sorted list.
+ * @list_len List lenght.
+ *
+ * @return An list index or (size_t)-1 if key wasn't found.
+ */
+size_t ujson_list_lookup(const char *const *list, size_t list_len,
+                         const char *key);
+
+/*
+ * @brief Object parsing functions with possible filter/skip list.
+ *
+ * These functions allows you to efficiently skip or filter a set of keys
+ * for a given object passed in ujson_obj_list.
+ *
+ * @buf An ujson buffer.
+ * @res An ujson result.
+ * @list An filter/skip list.
+ */
+int ujson_obj_first2(struct ujson_buf *buf, struct ujson_val *res,
+                     const struct ujson_obj_list *list);
+int ujson_obj_next2(struct ujson_buf *buf, struct ujson_val *res,
+                    const struct ujson_obj_list *list);
+
+#define UJSON_OBJ_FOREACH2(buf, res, list) \
+	for (ujson_obj_first2(buf, res, list); ujson_valid(res); ujson_obj_next2(buf, res, list))
+
 /*
  * @brief Skips parsing of an JSON object.
  *

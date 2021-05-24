@@ -1,0 +1,4 @@
+{
+ "aaa": "foo",
+ "bbb": ["foo", "bar", [null], {"foo": true}, 3.14]
+}

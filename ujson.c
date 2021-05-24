@@ -633,12 +633,95 @@ static int check_end(struct ujson_buf *buf, struct ujson_val *res, char b)
 	return 0;
 }
 
+size_t ujson_list_lookup(const char *const *list, size_t list_len,
+                         const char *key)
+{
+	size_t l = 0;
+	size_t r = list_len-1;
+	size_t mid = -1;
+
+	while (r - l > 1) {
+		mid = (l+r)/2;
+
+		int ret = strcmp(list[mid], key);
+		if (!ret)
+			return mid;
+
+		if (ret < 0)
+			l = mid;
+		else
+			r = mid;
+	}
+
+	if (r != mid && !strcmp(list[r], key))
+		return r;
+
+	if (l != mid && !strcmp(list[l], key))
+		return l;
+
+	return -1;
+}
+
+static int list_lookup(const struct ujson_obj_list *list, const char *key)
+{
+	if (ujson_list_lookup(list->key_list, list->key_list_len, key) == (size_t)-1)
+		return list->flags == UJSON_OBJ_LIST_SKIP;
+
+	return list->flags == UJSON_OBJ_LIST_FILTER;
+}
+
+static int skip_obj_val(struct ujson_buf *buf)
+{
+	struct ujson_val dummy = {};
+
+	if (!get_value(buf, &dummy))
+		return 0;
+
+	switch (dummy.type) {
+	case UJSON_OBJ:
+		return !ujson_obj_skip(buf);
+	case UJSON_ARR:
+		return !ujson_arr_skip(buf);
+	default:
+		return 1;
+	}
+}
+
 static int obj_next(struct ujson_buf *buf, struct ujson_val *res)
 {
 	if (copy_id_str(buf, res->id, sizeof(res->id)))
 		return 0;
 
 	return get_value(buf, res);
+}
+
+static int obj_pre_next(struct ujson_buf *buf, struct ujson_val *res)
+{
+	if (check_end(buf, res, '}'))
+		return 1;
+
+	if (pre_next(buf, res))
+		return 1;
+
+	return 0;
+}
+
+static int obj_next_filter(struct ujson_buf *buf, struct ujson_val *res,
+                           const struct ujson_obj_list *list)
+{
+	for (;;) {
+		if (copy_id_str(buf, res->id, sizeof(res->id)))
+			return 0;
+
+		if (list_lookup(list, res->id))
+			return get_value(buf, res);
+
+		if (!skip_obj_val(buf))
+			return 0;
+
+		if (obj_pre_next(buf, res))
+			return 0;
+	}
 }
 
 static int check_err(struct ujson_buf *buf, struct ujson_val *res)
@@ -651,15 +734,24 @@ static int check_err(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
+int ujson_obj_next2(struct ujson_buf *buf, struct ujson_val *res,
+                    const struct ujson_obj_list *list)
+{
+	if (check_err(buf, res))
+		return 0;
+
+	if (obj_pre_next(buf, res))
+		return 0;
+
+	return obj_next_filter(buf, res, list);
+}
+
 int ujson_obj_next(struct ujson_buf *buf, struct ujson_val *res)
 {
 	if (check_err(buf, res))
 		return 0;
 
-	if (check_end(buf, res, '}'))
-		return 0;
-
-	if (pre_next(buf, res))
+	if (obj_pre_next(buf, res))
 		return 0;
 
 	return obj_next(buf, res);
@@ -685,6 +777,21 @@ static int any_first(struct ujson_buf *buf, char b)
 	}
 
 	return 0;
+}
+
+int ujson_obj_first2(struct ujson_buf *buf, struct ujson_val *res,
+                     const struct ujson_obj_list *list)
+{
+	if (check_err(buf, res))
+		return 0;
+
+	if (any_first(buf, '{'))
+		return 1;
+
+	if (check_end(buf, res, '}'))
+		return 0;
+
+	return obj_next_filter(buf, res, list);
 }
 
 int ujson_obj_first(struct ujson_buf *buf, struct ujson_val *res)

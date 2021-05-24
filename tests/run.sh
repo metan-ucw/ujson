@@ -6,7 +6,12 @@ passed=0;
 echo "Running tests..."
 
 for i in *.json; do
-	./dump $i > stdout.out 2> stderr.out
+	case $i in
+	filter*) BINARY=filter;;
+	*) BINARY=dump;;
+	esac
+
+	./$BINARY $i > stdout.out 2> stderr.out
 
 	if ! [ -e "$i.out" ] && ! [ -e "$i.err" ]; then
 		echo "*** WARNING no file for $i"
