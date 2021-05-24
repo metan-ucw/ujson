@@ -786,7 +786,7 @@ int ujson_obj_first2(struct ujson_buf *buf, struct ujson_val *res,
 		return 0;
 
 	if (any_first(buf, '{'))
-		return 1;
+		return 0;
 
 	if (check_end(buf, res, '}'))
 		return 0;
@@ -800,7 +800,7 @@ int ujson_obj_first(struct ujson_buf *buf, struct ujson_val *res)
 		return 0;
 
 	if (any_first(buf, '{'))
-		return 1;
+		return 0;
 
 	if (check_end(buf, res, '}'))
 		return 0;
@@ -819,7 +819,7 @@ int ujson_arr_first(struct ujson_buf *buf, struct ujson_val *res)
 		return 0;
 
 	if (any_first(buf, '['))
-		return 1;
+		return 0;
 
 	if (check_end(buf, res, ']'))
 		return 0;
