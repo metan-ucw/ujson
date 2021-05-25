@@ -87,6 +87,15 @@ void ujson_err(struct ujson_buf *buf, const char *fmt, ...)
 void ujson_err_print(FILE *f, struct ujson_buf *buf);
 
 /*
+ * @brief Prints a warning into a file.
+ *
+ * @f A file to print the error to.
+ * @buf An gp_json buffer.
+ */
+void ujson_warn(FILE *f, struct ujson_buf *buf, const char *fmt, ...)
+                __attribute__((format (printf, 3, 4)));
+
+/*
  * @brief Returns true if error was encountered.
  *
  * @bfu An ujson buffer.

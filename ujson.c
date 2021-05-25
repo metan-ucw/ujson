@@ -874,7 +874,7 @@ static void print_spaceline(FILE *f, const char *line, size_t count)
 
 #define MIN(A, B) ((A < B) ? (A) : (B))
 
-void ujson_err_print(FILE *f, struct ujson_buf *buf)
+static void print_snippet(FILE *f, struct ujson_buf *buf, const char *type)
 {
 	ssize_t i;
 	const char *lines[ERR_LINES] = {};
@@ -895,7 +895,7 @@ void ujson_err_print(FILE *f, struct ujson_buf *buf)
 		last_off = buf->off - cur_off;
 	}
 
-	fprintf(f, "Parse error at line %zu\n\n", cur_line);
+	fprintf(f, "%s at line %zu\n\n", type, cur_line);
 
 	size_t idx = 0;
 
@@ -909,7 +909,24 @@ void ujson_err_print(FILE *f, struct ujson_buf *buf)
 	print_spaces(f, 5);
 	print_spaceline(f, lines[idx], last_off);
 	fprintf(f, "^\n");
+}
+
+void ujson_err_print(FILE *f, struct ujson_buf *buf)
+{
+	print_snippet(f, buf, "Parse error");
 	fprintf(f, "%s\n", buf->err);
+}
+
+void ujson_warn(FILE *f, struct ujson_buf *buf, const char *fmt, ...)
+{
+	va_list va;
+
+	print_snippet(f, buf, "Warning");
+
+	va_start(va, fmt);
+	vfprintf(f, fmt, va);
+	va_end(va);
+	fputc('\n', f);
 }
 
 struct ujson_buf *ujson_load(const char *path)
