@@ -201,6 +201,46 @@ int ujson_arr_next(struct ujson_buf *buf, struct ujson_val *res);
  */
 int ujson_arr_skip(struct ujson_buf *buf);
 
+struct ujson_state {
+	size_t off;
+	unsigned int depth;
+};
+
+/*
+ * @brief Returns a parser state at the start of current object/array.
+ *
+ * This function could be used for the parser to return to the start of the
+ * currently parsed object or array.
+ *
+ * @buf An ujson buffer.
+ * @return A state that points to a start of the last object or array.
+ */
+static inline struct ujson_state ujson_state_start(struct ujson_buf *buf)
+{
+	struct ujson_state ret = {
+		.off = buf->sub_off,
+		.depth = buf->depth,
+	};
+
+	return ret;
+}
+
+/*
+ * @brief Returns the parser to a saved state.
+ *
+ * This function could be used for the parser to return to the start of
+ * object or array saved by t the ujson_state_get() function.
+ *
+ * @buf An ujson buffer.
+ * @state An parser state as returned by the ujson_state_get().
+ */
+static inline void ujson_state_load(struct ujson_buf *buf, struct ujson_state state)
+{
+	buf->off = state.off;
+	buf->sub_off = state.off;
+	buf->depth = state.depth;
+}
+
 /*
  * @brief Loads a file into an ujson buffer.
  *

@@ -12,7 +12,7 @@ The key point of this parser is that:
 - works on a buffer in a memory that is _not_ modified during the parsing
 - parser does not allocate memory
 - nearly stateless, the only state the parser maintains is an offset to the
-  string buffer and error flag
+  string buffer, recursion depth and error flag
 - if error flag is raised all parser functions return immediatelly with error
 
 The parser is started by a call to `ujson_start()` function in order to
