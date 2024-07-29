@@ -7,6 +7,8 @@ UJSON is:
 - Produces nice and human readable error messages
 - Passes [JSONTestSuite](https://github.com/nst/JSONTestSuite)
 
+See generated documentation at: https://metan-ucw.github.io/ujson/files.html
+
 The key point of this parser is that:
 
 - works on a buffer in a memory that is _not_ modified during the parsing
