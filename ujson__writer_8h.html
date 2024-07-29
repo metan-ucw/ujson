@@ -101,13 +101,13 @@ Functions</h2></td></tr>
 <tr class="memdesc:a4ee6eb06bc38020ea64139f07aba6ab4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if writer error happened.  <a href="ujson__writer_8h.html#a4ee6eb06bc38020ea64139f07aba6ab4">More...</a><br /></td></tr>
 <tr class="separator:a4ee6eb06bc38020ea64139f07aba6ab4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae08e6279508ba3ec1ba9fe83b6dd7f90"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__writer_8h.html#ae08e6279508ba3ec1ba9fe83b6dd7f90">ujson_obj_start</a> (<a class="el" href="structujson__writer.html">ujson_writer</a> *self, const char *id)</td></tr>
-<tr class="memdesc:ae08e6279508ba3ec1ba9fe83b6dd7f90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts an JSON object.  <a href="ujson__writer_8h.html#ae08e6279508ba3ec1ba9fe83b6dd7f90">More...</a><br /></td></tr>
+<tr class="memdesc:ae08e6279508ba3ec1ba9fe83b6dd7f90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts a JSON object.  <a href="ujson__writer_8h.html#ae08e6279508ba3ec1ba9fe83b6dd7f90">More...</a><br /></td></tr>
 <tr class="separator:ae08e6279508ba3ec1ba9fe83b6dd7f90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9038172e3ec21c7558059ee367635467"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__writer_8h.html#a9038172e3ec21c7558059ee367635467">ujson_obj_finish</a> (<a class="el" href="structujson__writer.html">ujson_writer</a> *self)</td></tr>
 <tr class="memdesc:a9038172e3ec21c7558059ee367635467"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finishes a JSON object.  <a href="ujson__writer_8h.html#a9038172e3ec21c7558059ee367635467">More...</a><br /></td></tr>
 <tr class="separator:a9038172e3ec21c7558059ee367635467"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d6208f7d8fc38ea3f11b96f20ae7d43"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__writer_8h.html#a6d6208f7d8fc38ea3f11b96f20ae7d43">ujson_arr_start</a> (<a class="el" href="structujson__writer.html">ujson_writer</a> *self, const char *id)</td></tr>
-<tr class="memdesc:a6d6208f7d8fc38ea3f11b96f20ae7d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts an json array.  <a href="ujson__writer_8h.html#a6d6208f7d8fc38ea3f11b96f20ae7d43">More...</a><br /></td></tr>
+<tr class="memdesc:a6d6208f7d8fc38ea3f11b96f20ae7d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts a JSON array.  <a href="ujson__writer_8h.html#a6d6208f7d8fc38ea3f11b96f20ae7d43">More...</a><br /></td></tr>
 <tr class="separator:a6d6208f7d8fc38ea3f11b96f20ae7d43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1324a6c13c5b82912efb538050728598"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__writer_8h.html#a1324a6c13c5b82912efb538050728598">ujson_arr_finish</a> (<a class="el" href="structujson__writer.html">ujson_writer</a> *self)</td></tr>
 <tr class="memdesc:a1324a6c13c5b82912efb538050728598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finishes a JSON array.  <a href="ujson__writer_8h.html#a1324a6c13c5b82912efb538050728598">More...</a><br /></td></tr>
@@ -133,7 +133,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A JSON writer. </p>
-<p>All the function that add values return 0 on success and non-zero on a failure. Once an error has happened all subsequent attempts to add more values return with non-zero exit status immediatelly. This is designed so that we can add several values without checking each return value and only check if error has happened at the end of the sequence.</p>
+<p>All the function that add values return zero on success and non-zero on a failure. Once an error has happened all subsequent attempts to add more values return with non-zero exit status immediatelly. This is designed so that we can add several values without checking each return value and only check if error has happened at the end of the sequence.</p>
 <p>Failures may occur:</p><ul>
 <li>if we call the functions out of order, e.g. attempt to finish array when we are not writing out an array.</li>
 <li>if we run out of recursion stack</li>
@@ -206,12 +206,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Finishes a JSON array. </p>
+<p>The call will fail if we are currenlty not writing out an array.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
+    <tr><td class="paramname">self</td><td>A JSON writer.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -241,14 +243,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Starts an json array. </p>
+<p>Starts a JSON array. </p>
+<p>For a top level array the id must be NULL, every other array has to have non-NULL id. The call will also fail if maximal recursion depth UJSON_RECURSION_MAX has been reached.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
-    <tr><td class="paramname">id</td><td>An array name. </td></tr>
+    <tr><td class="paramname">id</td><td>An array name.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -285,13 +289,16 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a bool value. </p>
+<p>The id must be NULL inside of an array, and must be non-NULL inside of an object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
     <tr><td class="paramname">id</td><td>An boolean value name. </td></tr>
+    <tr><td class="paramname">val</td><td>A boolean value.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -328,13 +335,16 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a float value. </p>
+<p>The id must be NULL inside of an array, and must be non-NULL inside of an object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
     <tr><td class="paramname">id</td><td>A floating point value name. </td></tr>
+    <tr><td class="paramname">val</td><td>A floating point value.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -371,13 +381,16 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds an integer value. </p>
+<p>The id must be NULL inside of an array, and must be non-NULL inside of an object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
     <tr><td class="paramname">id</td><td>An integer value name. </td></tr>
+    <tr><td class="paramname">val</td><td>An integer value.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -408,13 +421,15 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a null value. </p>
+<p>The id must be NULL inside of an array, and must be non-NULL inside of an object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
-    <tr><td class="paramname">id</td><td>A null value name. </td></tr>
+    <tr><td class="paramname">id</td><td>A null value name.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -435,12 +450,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Finishes a JSON object. </p>
+<p>The call will fail if we are currenlty not writing out an object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
+    <tr><td class="paramname">self</td><td>A JSON writer.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -470,14 +487,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Starts an JSON object. </p>
+<p>Starts a JSON object. </p>
+<p>For a top level object the id must be NULL, every other object has to have non-NULL id. The call will also fail if maximal recursion depth UJSON_RECURSION_MAX has been reached.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
-    <tr><td class="paramname">id</td><td>An object name. </td></tr>
+    <tr><td class="paramname">id</td><td>An object name.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on a success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -514,13 +533,16 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a string value. </p>
+<p>The id must be NULL inside of an array, and must be non-NULL inside of an object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>A JSON writer. </td></tr>
     <tr><td class="paramname">id</td><td>A string value name. </td></tr>
+    <tr><td class="paramname">str</td><td>An UTF8 string value.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -549,9 +571,15 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Returns true if writer error happened. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">self</td><td>A JSON writer.</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>True if error has happened. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__writer_8h_source.html#l00087">87</a> of file <a class="el" href="ujson__writer_8h_source.html">ujson_writer.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__writer_8h_source.html#l00089">89</a> of file <a class="el" href="ujson__writer_8h_source.html">ujson_writer.h</a>.</p>
 
 </div>
 </div>
@@ -578,7 +606,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Zero on success, 1 on a failure and errno is set. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success, non-zero on a failure and errno is set. </dd></dl>
 
 </div>
 </div>

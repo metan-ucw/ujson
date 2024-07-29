@@ -78,6 +78,18 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a6ef794fb64d3d8177a706a7060cc7e97"><td class="memItemLeft" align="right" valign="top"><a id="a6ef794fb64d3d8177a706a7060cc7e97"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__common_8h.html#a6ef794fb64d3d8177a706a7060cc7e97">UJSON_ERR_MAX</a>&#160;&#160;&#160;128</td></tr>
+<tr class="memdesc:a6ef794fb64d3d8177a706a7060cc7e97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximal error message length. <br /></td></tr>
+<tr class="separator:a6ef794fb64d3d8177a706a7060cc7e97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9118577ce283a3603a89342b1d05b73f"><td class="memItemLeft" align="right" valign="top"><a id="a9118577ce283a3603a89342b1d05b73f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__common_8h.html#a9118577ce283a3603a89342b1d05b73f">UJSON_ID_MAX</a>&#160;&#160;&#160;64</td></tr>
+<tr class="memdesc:a9118577ce283a3603a89342b1d05b73f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximal id string lenght including terminating null element. <br /></td></tr>
+<tr class="separator:a9118577ce283a3603a89342b1d05b73f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e77e5d161ce08767f7aa6cceeadb168"><td class="memItemLeft" align="right" valign="top"><a id="a3e77e5d161ce08767f7aa6cceeadb168"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__common_8h.html#a3e77e5d161ce08767f7aa6cceeadb168">UJSON_RECURSION_MAX</a>&#160;&#160;&#160;128</td></tr>
+<tr class="memdesc:a3e77e5d161ce08767f7aa6cceeadb168"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximal recursion depth allowed. <br /></td></tr>
+<tr class="separator:a3e77e5d161ce08767f7aa6cceeadb168"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae347936ee8b19d35e6f1c312822627c4"><td class="memItemLeft" align="right" valign="top"><a id="ae347936ee8b19d35e6f1c312822627c4"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__common_8h.html#ae347936ee8b19d35e6f1c312822627c4">UJSON_ARRAY_SIZE</a>(array)&#160;&#160;&#160;(sizeof(array) / sizeof(*array))</td></tr>
 <tr class="memdesc:ae347936ee8b19d35e6f1c312822627c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">An array size macro. <br /></td></tr>
@@ -106,7 +118,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a0ac63e5b59503a9339305e7d02568e0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns type name.  <a href="ujson__common_8h.html#a0ac63e5b59503a9339305e7d02568e0e">More...</a><br /></td></tr>
 <tr class="separator:a0ac63e5b59503a9339305e7d02568e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b009e517da14215ecac02431aa6be4e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__common_8h.html#a6b009e517da14215ecac02431aa6be4e">ujson_err_handler</a> (void *print_priv, const char *line)</td></tr>
-<tr class="memdesc:a6b009e517da14215ecac02431aa6be4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">default error print handler  <a href="ujson__common_8h.html#a6b009e517da14215ecac02431aa6be4e">More...</a><br /></td></tr>
+<tr class="memdesc:a6b009e517da14215ecac02431aa6be4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default error print handler.  <a href="ujson__common_8h.html#a6b009e517da14215ecac02431aa6be4e">More...</a><br /></td></tr>
 <tr class="separator:a6b009e517da14215ecac02431aa6be4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -128,7 +140,7 @@ Functions</h2></td></tr>
 
 <p>A JSON data type. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0afdcfec05984ec821bdfd00d810e65969"></a>UJSON_VOID&#160;</td><td class="fielddoc"><p>No type. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0afdcfec05984ec821bdfd00d810e65969"></a>UJSON_VOID&#160;</td><td class="fielddoc"><p>No type. Returned when parser finishes. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0aa4f092cc058d843b0296c52612550b53"></a>UJSON_INT&#160;</td><td class="fielddoc"><p>An integer. </p>
 </td></tr>
@@ -140,13 +152,13 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0a2272110995f8bed4414592dc48c4f86b"></a>UJSON_STR&#160;</td><td class="fielddoc"><p>A string. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0a8e58cb86eac973b1ce488b4957561f9a"></a>UJSON_OBJ&#160;</td><td class="fielddoc"><p>An JSON object. </p>
+<tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0a8e58cb86eac973b1ce488b4957561f9a"></a>UJSON_OBJ&#160;</td><td class="fielddoc"><p>A JSON object. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0aacbd3f141632ef30dfec3fde0d5fa043"></a>UJSON_ARR&#160;</td><td class="fielddoc"><p>An JSON array. </p>
+<tr><td class="fieldname"><a id="aeb1292f08da5544e3d826f2ebf543cb0aacbd3f141632ef30dfec3fde0d5fa043"></a>UJSON_ARR&#160;</td><td class="fielddoc"><p>A JSON array. </p>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="ujson__common_8h_source.html#l00025">25</a> of file <a class="el" href="ujson__common_8h_source.html">ujson_common.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__common_8h_source.html#l00027">27</a> of file <a class="el" href="ujson__common_8h_source.html">ujson_common.h</a>.</p>
 
 </div>
 </div>
@@ -177,8 +189,15 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>default error print handler </p>
-<p>@print_priv A json buffer print_priv pointer. </p><div class="fragment"></div><!-- fragment -->
+<p>Default error print handler. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">print_priv</td><td>A json buffer print_priv pointer. </td></tr>
+    <tr><td class="paramname">line</td><td>A line of text to be printed. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="a0ac63e5b59503a9339305e7d02568e0e"></a>
