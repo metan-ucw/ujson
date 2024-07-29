@@ -110,9 +110,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a67cedd2d3679d66a74d75da26a26d229"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__utf_8h.html#a67cedd2d3679d66a74d75da26a26d229">ujson_to_utf8</a> (uint32_t unicode, char *buf)</td></tr>
 <tr class="memdesc:a67cedd2d3679d66a74d75da26a26d229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an unicode character into a UTF-8 buffer.  <a href="ujson__utf_8h.html#a67cedd2d3679d66a74d75da26a26d229">More...</a><br /></td></tr>
 <tr class="separator:a67cedd2d3679d66a74d75da26a26d229"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49a03ead5551a3508acb0acbbbab1dfa"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__utf_8h.html#a49a03ead5551a3508acb0acbbbab1dfa">ujson_utf_fallback</a> (uint32_t ch)</td></tr>
-<tr class="memdesc:a49a03ead5551a3508acb0acbbbab1dfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to strip diacritics from an unicode character.  <a href="ujson__utf_8h.html#a49a03ead5551a3508acb0acbbbab1dfa">More...</a><br /></td></tr>
-<tr class="separator:a49a03ead5551a3508acb0acbbbab1dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Unicode helper macros and functions. </p>
@@ -451,34 +448,6 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of characters in the string. </dd></dl>
-
-</div>
-</div>
-<a id="a49a03ead5551a3508acb0acbbbab1dfa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a49a03ead5551a3508acb0acbbbab1dfa">&#9670;&nbsp;</a></span>ujson_utf_fallback()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t ujson_utf_fallback </td>
-          <td>(</td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>ch</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Attempts to strip diacritics from an unicode character. </p>
-<p>Attempts to strip diacritics and replace symbols with a similar meaning which produces text that can be stil readable even with ASCII only font.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ch</td><td>An UTF character. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A replacemement for a character with the same meaning or original character if mapping was not found. </dd></dl>
 
 </div>
 </div>
