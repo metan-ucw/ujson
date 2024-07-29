@@ -1,5 +1,5 @@
 CFLAGS=-Wextra -Wall -O2 -I.
-CSOURCES=ujson_reader.c ujson_writer.c ujson_common.c
+CSOURCES=ujson_reader.c ujson_writer.c ujson_common.c ujson_utf.c
 OBJS=$(CSOURCES:.c=.o)
 LIB=libujson.a
 

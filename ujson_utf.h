@@ -165,16 +165,4 @@ static inline int ujson_to_utf8(uint32_t unicode, char *buf)
 	return 4;
 }
 
-/**
- * @brief Attempts to strip diacritics from an unicode character.
- *
- * Attempts to strip diacritics and replace symbols with a similar meaning which
- * produces text that can be stil readable even with ASCII only font.
- *
- * @param ch An UTF character.
- * @return A replacemement for a character with the same meaning or original
- *         character if mapping was not found.
- */
-uint32_t ujson_utf_fallback(uint32_t ch);
-
 #endif /* UJSON_UTF_H */
