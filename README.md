@@ -43,15 +43,15 @@ Then you can loop recursively over arrays and objects with:
 	char sbuf[128];
 	struct ujson_val json = {.buf = sbuf, .buf_size = sizeof(sbuf)};
 
-    UJSON_OBJ_FOREACH(reader, &json) {
-        switch (json.type) {
+	UJSON_OBJ_FOREACH(reader, &json) {
+		switch (json.type) {
 		case UJSON_OBJ:
 			//parse object
 		break;
 		case UJSON_ARR:
 			//parse array
 		break;
-                case UJSON_STR:
+		case UJSON_STR:
 		...
 
 		}
