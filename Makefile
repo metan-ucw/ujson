@@ -12,4 +12,4 @@ test: $(LIB)
 	cd tests && make
 
 clean:
-	rm -f *.o $(LIB)
+	rm -rf *.o $(LIB) docs
