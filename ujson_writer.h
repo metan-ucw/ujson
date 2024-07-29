@@ -7,7 +7,7 @@
  * @file ujson_writer.h
  * @brief A JSON writer.
  *
- * All the function that add values return 0 on success and non-zero on a
+ * All the function that add values return zero on success and non-zero on a
  * failure. Once an error has happened all subsequent attempts to add more
  * values return with non-zero exit status immediatelly. This is designed
  * so that we can add several values without checking each return value
@@ -75,12 +75,14 @@ ujson_writer *ujson_writer_file_open(const char *path);
  *
  * @param self A ujson_writer file writer.
  *
- * @return Zero on success, 1 on a failure and errno is set.
+ * @return Zero on success, non-zero on a failure and errno is set.
  */
 int ujson_writer_file_close(ujson_writer *self);
 
 /**
  * @brief Returns true if writer error happened.
+ *
+ * @param self A JSON writer.
  *
  * @return True if error has happened.
  */
@@ -90,72 +92,121 @@ static inline int ujson_writer_err(ujson_writer *self)
 }
 
 /**
- * @brief Starts an JSON object.
+ * @brief Starts a JSON object.
+ *
+ * For a top level object the id must be NULL, every other object has to have
+ * non-NULL id. The call will also fail if maximal recursion depth
+ * UJSON_RECURSION_MAX has been reached.
  *
  * @param self A JSON writer.
  * @param id An object name.
+ *
+ * @return Zero on a success, non-zero otherwise.
  */
 int ujson_obj_start(ujson_writer *self, const char *id);
 
 /**
  * @brief Finishes a JSON object.
  *
+ * The call will fail if we are currenlty not writing out an object.
+ *
  * @param self A JSON writer.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_obj_finish(ujson_writer *self);
 
 /**
- * @brief Starts an json array.
+ * @brief Starts a JSON array.
+ *
+ * For a top level array the id must be NULL, every other array has to have
+ * non-NULL id. The call will also fail if maximal recursion depth
+ * UJSON_RECURSION_MAX has been reached.
  *
  * @param self A JSON writer.
  * @param id An array name.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_arr_start(ujson_writer *self, const char *id);
 
 /**
  * @brief Finishes a JSON array.
  *
+ * The call will fail if we are currenlty not writing out an array.
+ *
  * @param self A JSON writer.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_arr_finish(ujson_writer *self);
 
 /**
  * @brief Adds a null value.
  *
+ * The id must be NULL inside of an array, and must be non-NULL inside of an
+ * object.
+ *
  * @param self A JSON writer.
  * @param id A null value name.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_null_add(ujson_writer *self, const char *id);
 
 /**
  * @brief Adds an integer value.
  *
+ * The id must be NULL inside of an array, and must be non-NULL inside of an
+ * object.
+ *
  * @param self A JSON writer.
  * @param id An integer value name.
+ * @param val An integer value.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_int_add(ujson_writer *self, const char *id, long val);
 
 /**
  * @brief Adds a bool value.
  *
+ * The id must be NULL inside of an array, and must be non-NULL inside of an
+ * object.
+ *
  * @param self A JSON writer.
  * @param id An boolean value name.
+ * @param val A boolean value.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_bool_add(ujson_writer *self, const char *id, int val);
 
 /**
  * @brief Adds a float value.
  *
+ * The id must be NULL inside of an array, and must be non-NULL inside of an
+ * object.
+ *
  * @param self A JSON writer.
  * @param id A floating point value name.
+ * @param val A floating point value.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_float_add(ujson_writer *self, const char *id, double val);
 
 /**
  * @brief Adds a string value.
  *
+ * The id must be NULL inside of an array, and must be non-NULL inside of an
+ * object.
+ *
  * @param self A JSON writer.
  * @param id A string value name.
+ * @param str An UTF8 string value.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_str_add(ujson_writer *self, const char *id, const char *str);
 

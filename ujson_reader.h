@@ -5,7 +5,13 @@
 
 /**
  * @file ujson_reader.h
- * @brief A JSON parser.
+ * @brief A recursive descend JSON parser.
+ *
+ * All the function that parse JSON return zero on success and non-zero on a
+ * failure. Once an error has happened all subsequent attempts to parse more
+ * return with non-zero exit status immediatelly. This is designed so that we
+ * can parse several values without checking each return value and only check
+ * if error has happened at the end of the sequence.
  */
 
 #ifndef UJSON_READER_H
@@ -198,6 +204,8 @@ enum ujson_type ujson_reader_start(ujson_reader *self);
  *
  * @param self An ujson_reader
  * @param res An ujson_val to store the parsed value to.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_obj_first(ujson_reader *self, struct ujson_val *res);
 
@@ -209,6 +217,8 @@ int ujson_obj_first(ujson_reader *self, struct ujson_val *res);
  *
  * @param self An ujson_reader.
  * @param res A ujson_val to store the parsed value to.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_obj_next(ujson_reader *self, struct ujson_val *res);
 
@@ -284,6 +294,8 @@ static inline size_t ujson_obj_lookup(const ujson_obj *obj, const char *key)
  * @param res An ujson_val to store the parsed value to.
  * @param obj An ujson_obj object description.
  * @param ign A list of keys to ignore.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_obj_first_filter(ujson_reader *self, struct ujson_val *res,
                            const struct ujson_obj *obj, const struct ujson_obj *ign);
@@ -298,6 +310,8 @@ int ujson_obj_first_filter(ujson_reader *self, struct ujson_val *res,
  * @param res An ujson_val to store the parsed value to.
  * @param obj An ujson_obj object description.
  * @param ign A list of keys to ignore.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_obj_next_filter(ujson_reader *self, struct ujson_val *res,
                           const struct ujson_obj *obj, const struct ujson_obj *ign);
@@ -337,6 +351,7 @@ int ujson_obj_next_filter(ujson_reader *self, struct ujson_val *res,
  * @brief Skips parsing of a JSON object.
  *
  * @param self An ujson_reader.
+ *
  * @return Zero on success, non-zero otherwise.
  */
 int ujson_obj_skip(ujson_reader *self);
@@ -346,6 +361,8 @@ int ujson_obj_skip(ujson_reader *self);
  *
  * @param self An ujson_reader.
  * @param res An ujson_val to store the parsed value to.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_arr_first(ujson_reader *self, struct ujson_val *res);
 
@@ -357,6 +374,8 @@ int ujson_arr_first(ujson_reader *self, struct ujson_val *res);
  *
  * @param self An ujson_reader.
  * @param res An ujson_val to store the parsed value to.
+ *
+ * @return Zero on success, non-zero otherwise.
  */
 int ujson_arr_next(ujson_reader *self, struct ujson_val *res);
 
@@ -379,7 +398,8 @@ int ujson_arr_next(ujson_reader *self, struct ujson_val *res);
 /**
  * @brief Skips parsing of a JSON array.
  *
- * @param self A ujson_reader
+ * @param self A ujson_reader.
+ *
  * @return Zero on success, non-zero otherwise.
  */
 int ujson_arr_skip(ujson_reader *self);

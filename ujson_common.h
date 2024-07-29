@@ -11,9 +11,11 @@
 #ifndef UJSON_COMMON_H
 #define UJSON_COMMON_H
 
+/** @brief Maximal error message length. */
 #define UJSON_ERR_MAX 128
+/** @brief Maximal id string lenght including terminating null element. */
 #define UJSON_ID_MAX 64
-
+/** @brief Maximal recursion depth allowed. */
 #define UJSON_RECURSION_MAX 128
 
 #define UJSON_ERR_PRINT ujson_err_handler
@@ -23,7 +25,7 @@
  * @brief A JSON data type.
  */
 enum ujson_type {
-	/** @brief No type. */
+	/** @brief No type. Returned when parser finishes. */
 	UJSON_VOID = 0,
 	/** @brief An integer. */
 	UJSON_INT,
@@ -35,9 +37,9 @@ enum ujson_type {
 	UJSON_NULL,
 	/** @brief A string. */
 	UJSON_STR,
-	/** @brief An JSON object. */
+	/** @brief A JSON object. */
 	UJSON_OBJ,
-	/** @brief An JSON array. */
+	/** @brief A JSON array. */
 	UJSON_ARR,
 };
 
@@ -50,10 +52,10 @@ enum ujson_type {
 const char *ujson_type_name(enum ujson_type type);
 
 /**
- * @brief default error print handler
+ * @brief Default error print handler.
  *
- * @print_priv A json buffer print_priv pointer.
- * @line A line of output to be printed.
+ * @param print_priv A json buffer print_priv pointer.
+ * @param line A line of text to be printed.
  */
 void ujson_err_handler(void *print_priv, const char *line);
 
