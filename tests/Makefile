@@ -1,11 +1,13 @@
-CFLAGS=-W -Wall -O2
+CFLAGS=-W -Wall -O2 -I../
+LDLIBS=-lujson
+LDFLAGS=-L../
 
 all: dump skip filter
 	@./run.sh
 
-dump: dump.o ../ujson.o
-skip: skip.o ../ujson.o
-filter: filter.o ../ujson.o
+dump: dump.o
+skip: skip.o
+filter: filter.o
 
 clean:
-	rm -f dump *.o
+	rm -f dump skip filter *.o

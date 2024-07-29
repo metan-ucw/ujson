@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 /*
- * Copyright (C) 2021 Cyril Hrubis <metan@ucw.cz>
+ * Copyright (C) 2021-2024 Cyril Hrubis <metan@ucw.cz>
  */
 
 #include <sys/types.h>
@@ -11,14 +11,16 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include "ujson.h"
 
-static inline int buf_empty(struct ujson_buf *buf)
+#include "ujson_utf.h"
+#include "ujson_reader.h"
+
+static inline int buf_empty(ujson_reader *buf)
 {
 	return buf->off >= buf->len;
 }
 
-static int eatws(struct ujson_buf *buf)
+static int eatws(ujson_reader *buf)
 {
 	while (!buf_empty(buf)) {
 		switch (buf->json[buf->off]) {
@@ -37,7 +39,7 @@ ret:
 	return buf_empty(buf);
 }
 
-static char getb(struct ujson_buf *buf)
+static char getb(ujson_reader *buf)
 {
 	if (buf_empty(buf))
 		return 0;
@@ -45,7 +47,7 @@ static char getb(struct ujson_buf *buf)
 	return buf->json[buf->off++];
 }
 
-static char peekb_off(struct ujson_buf *buf, size_t off)
+static char peekb_off(ujson_reader *buf, size_t off)
 {
 	if (buf->off + off >= buf->len)
 		return 0;
@@ -53,7 +55,7 @@ static char peekb_off(struct ujson_buf *buf, size_t off)
 	return buf->json[buf->off + off];
 }
 
-static char peekb(struct ujson_buf *buf)
+static char peekb(ujson_reader *buf)
 {
 	if (buf_empty(buf))
 		return 0;
@@ -61,7 +63,7 @@ static char peekb(struct ujson_buf *buf)
 	return buf->json[buf->off];
 }
 
-static int eatb(struct ujson_buf *buf, char ch)
+static int eatb(ujson_reader *buf, char ch)
 {
 	if (peekb(buf) != ch)
 		return 0;
@@ -70,7 +72,7 @@ static int eatb(struct ujson_buf *buf, char ch)
 	return 1;
 }
 
-static int eatb2(struct ujson_buf *buf, char ch1, char ch2)
+static int eatb2(ujson_reader *buf, char ch1, char ch2)
 {
 	if (peekb(buf) != ch1 && peekb(buf) != ch2)
 		return 0;
@@ -79,7 +81,7 @@ static int eatb2(struct ujson_buf *buf, char ch1, char ch2)
 	return 1;
 }
 
-static int eatstr(struct ujson_buf *buf, const char *str)
+static int eatstr(ujson_reader *buf, const char *str)
 {
 	while (*str) {
 		if (!eatb(buf, *str))
@@ -104,7 +106,7 @@ static int hex2val(unsigned char b)
 	}
 }
 
-static int32_t parse_ucode_cp(struct ujson_buf *buf)
+static int32_t parse_ucode_cp(ujson_reader *buf)
 {
 	int ret = 0, v, i;
 
@@ -121,48 +123,7 @@ err:
 	return -1;
 }
 
-static unsigned int utf8_bytes(uint32_t ucode_cp)
-{
-	if (ucode_cp < 0x0080)
-		return 1;
-
-	if (ucode_cp < 0x0800)
-		return 2;
-
-	if (ucode_cp < 0x10000)
-		return 3;
-
-	return 4;
-}
-
-static int to_utf8(uint32_t ucode_cp, char *buf)
-{
-	if (ucode_cp < 0x0080) {
-		buf[0] = ucode_cp & 0x00f7;
-		return 1;
-	}
-
-	if (ucode_cp < 0x0800) {
-		buf[0] = 0xc0 | (0x1f & (ucode_cp>>6));
-		buf[1] = 0x80 | (0x3f & ucode_cp);
-		return 2;
-	}
-
-	if (ucode_cp < 0x10000) {
-		buf[0] = 0xe0 | (0x0f & (ucode_cp>>12));
-		buf[1] = 0x80 | (0x3f & (ucode_cp>>6));
-		buf[2] = 0x80 | (0x3f & ucode_cp);
-		return 3;
-	}
-
-	buf[0] = 0xf0 | (0x07 & (ucode_cp>>18));
-	buf[1] = 0x80 | (0x3f & (ucode_cp>>12));
-	buf[2] = 0x80 | (0x3f & (ucode_cp>>6));
-	buf[3] = 0x80 | (0x3f & ucode_cp);
-	return 4;
-}
-
-static unsigned int parse_ucode_esc(struct ujson_buf *buf, char *str,
+static unsigned int parse_ucode_esc(ujson_reader *buf, char *str,
                                     size_t off, size_t len)
 {
 	int32_t ucode = parse_ucode_cp(buf);
@@ -173,15 +134,15 @@ static unsigned int parse_ucode_esc(struct ujson_buf *buf, char *str,
 	if (!str)
 		return ucode;
 
-	if (utf8_bytes(ucode) + 1 >= len - off) {
+	if (ujson_utf8_bytes(ucode) + 1 >= len - off) {
 		ujson_err(buf, "String buffer too short!");
 		return 0;
 	}
 
-	return to_utf8(ucode, str+off);
+	return ujson_to_utf8(ucode, str+off);
 }
 
-static int copy_str(struct ujson_buf *buf, char *str, size_t len)
+static int copy_str(ujson_reader *buf, char *str, size_t len)
 {
 	size_t pos = 0;
 	int esc = 0;
@@ -263,7 +224,7 @@ static int copy_str(struct ujson_buf *buf, char *str, size_t len)
 	return 1;
 }
 
-static int copy_id_str(struct ujson_buf *buf, char *str, size_t len)
+static int copy_id_str(ujson_reader *buf, char *str, size_t len)
 {
 	size_t pos = 0;
 
@@ -317,7 +278,7 @@ static int is_digit(char b)
 	}
 }
 
-static int get_int(struct ujson_buf *buf, struct ujson_val *res)
+static int get_int(ujson_reader *buf, struct ujson_val *res)
 {
 	long val = 0;
 	int sign = 1;
@@ -350,7 +311,7 @@ static int get_int(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
-static int eat_digits(struct ujson_buf *buf)
+static int eat_digits(ujson_reader *buf)
 {
 	if (!is_digit(peekb(buf))) {
 		ujson_err(buf, "Expected digit(s)");
@@ -363,7 +324,7 @@ static int eat_digits(struct ujson_buf *buf)
 	return 0;
 }
 
-static int get_float(struct ujson_buf *buf, struct ujson_val *res)
+static int get_float(ujson_reader *buf, struct ujson_val *res)
 {
 	off_t start = buf->off;
 
@@ -402,12 +363,12 @@ static int get_float(struct ujson_buf *buf, struct ujson_val *res)
 
 	tmp[len] = 0;
 
-	res->val_float = atof(tmp);
+	res->val_float = strtod(tmp, NULL);
 
 	return 0;
 }
 
-static int get_bool(struct ujson_buf *buf, struct ujson_val *res)
+static int get_bool(ujson_reader *buf, struct ujson_val *res)
 {
 	switch (peekb(buf)) {
 	case 'f':
@@ -431,7 +392,7 @@ static int get_bool(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
-static int get_null(struct ujson_buf *buf)
+static int get_null(ujson_reader *buf)
 {
 	if (!eatstr(buf, "null")) {
 		ujson_err(buf, "Expected 'null'");
@@ -441,7 +402,7 @@ static int get_null(struct ujson_buf *buf)
 	return 0;
 }
 
-int ujson_obj_skip(struct ujson_buf *buf)
+int ujson_obj_skip(ujson_reader *buf)
 {
 	struct ujson_val res = {};
 
@@ -463,7 +424,7 @@ int ujson_obj_skip(struct ujson_buf *buf)
 	return 0;
 }
 
-int ujson_arr_skip(struct ujson_buf *buf)
+int ujson_arr_skip(ujson_reader *buf)
 {
 	struct ujson_val res = {};
 
@@ -485,7 +446,7 @@ int ujson_arr_skip(struct ujson_buf *buf)
 	return 0;
 }
 
-static enum ujson_type next_num_type(struct ujson_buf *buf)
+static enum ujson_type next_num_type(ujson_reader *buf)
 {
 	size_t off = 0;
 
@@ -506,7 +467,7 @@ static enum ujson_type next_num_type(struct ujson_buf *buf)
 	return UJSON_VOID;
 }
 
-enum ujson_type ujson_next_type(struct ujson_buf *buf)
+enum ujson_type ujson_next_type(ujson_reader *buf)
 {
 	if (eatws(buf)) {
 		ujson_err(buf, "Unexpected end");
@@ -538,7 +499,7 @@ enum ujson_type ujson_next_type(struct ujson_buf *buf)
 	}
 }
 
-enum ujson_type ujson_start(struct ujson_buf *buf)
+enum ujson_type ujson_reader_start(ujson_reader *buf)
 {
 	enum ujson_type type = ujson_next_type(buf);
 
@@ -556,7 +517,7 @@ enum ujson_type ujson_start(struct ujson_buf *buf)
 	return type;
 }
 
-static int get_value(struct ujson_buf *buf, struct ujson_val *res)
+static int get_value(ujson_reader *buf, struct ujson_val *res)
 {
 	int ret = 0;
 
@@ -598,7 +559,7 @@ static int get_value(struct ujson_buf *buf, struct ujson_val *res)
 	return 1;
 }
 
-static int pre_next(struct ujson_buf *buf, struct ujson_val *res)
+static int pre_next(ujson_reader *buf, struct ujson_val *res)
 {
 	if (!eatb(buf, ',')) {
 		ujson_err(buf, "Expected ','");
@@ -615,7 +576,7 @@ static int pre_next(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
-static int check_end(struct ujson_buf *buf, struct ujson_val *res, char b)
+static int check_end(ujson_reader *buf, struct ujson_val *res, char b)
 {
 	if (eatws(buf)) {
 		ujson_err(buf, "Unexpected end");
@@ -633,8 +594,29 @@ static int check_end(struct ujson_buf *buf, struct ujson_val *res, char b)
 	return 0;
 }
 
-size_t ujson_list_lookup(const char *const *list, size_t list_len,
-                         const char *key)
+/*
+ * This is supposed to return a pointer to a string stored as a first member of
+ * a structure given an array.
+ *
+ * e.g.
+ *
+ *	struct foo {
+ *		const char *key;
+ *		...
+ *	};
+ *
+ *	const struct foo bar[10] = {...};
+ *
+ *      // Returns a pointer to the key string in a second structure in bar[].
+ *	const char *key = list_elem(bar, sizeof(struct foo), 1);
+ */
+static inline const char *list_elem(const void *arr, size_t memb_size, size_t idx)
+{
+	return *(const char**)(arr + idx * memb_size);
+}
+
+size_t ujson_lookup(const void *arr, size_t memb_size, size_t list_len,
+                      const char *key)
 {
 	size_t l = 0;
 	size_t r = list_len-1;
@@ -643,7 +625,7 @@ size_t ujson_list_lookup(const char *const *list, size_t list_len,
 	while (r - l > 1) {
 		mid = (l+r)/2;
 
-		int ret = strcmp(list[mid], key);
+		int ret = strcmp(list_elem(arr, memb_size, mid), key);
 		if (!ret)
 			return mid;
 
@@ -653,24 +635,16 @@ size_t ujson_list_lookup(const char *const *list, size_t list_len,
 			r = mid;
 	}
 
-	if (r != mid && !strcmp(list[r], key))
+	if (r != mid && !strcmp(list_elem(arr, memb_size, r), key))
 		return r;
 
-	if (l != mid && !strcmp(list[l], key))
+	if (l != mid && !strcmp(list_elem(arr, memb_size, l), key))
 		return l;
 
 	return -1;
 }
 
-static int list_lookup(const struct ujson_obj_list *list, const char *key)
-{
-	if (ujson_list_lookup(list->key_list, list->key_list_len, key) == (size_t)-1)
-		return list->flags == UJSON_OBJ_LIST_SKIP;
-
-	return list->flags == UJSON_OBJ_LIST_FILTER;
-}
-
-static int skip_obj_val(struct ujson_buf *buf)
+static int skip_obj_val(ujson_reader *buf)
 {
 	struct ujson_val dummy = {};
 
@@ -687,7 +661,7 @@ static int skip_obj_val(struct ujson_buf *buf)
 	}
 }
 
-static int obj_next(struct ujson_buf *buf, struct ujson_val *res)
+static int obj_next(ujson_reader *buf, struct ujson_val *res)
 {
 	if (copy_id_str(buf, res->id, sizeof(res->id)))
 		return 0;
@@ -695,7 +669,7 @@ static int obj_next(struct ujson_buf *buf, struct ujson_val *res)
 	return get_value(buf, res);
 }
 
-static int obj_pre_next(struct ujson_buf *buf, struct ujson_val *res)
+static int obj_pre_next(ujson_reader *buf, struct ujson_val *res)
 {
 	if (check_end(buf, res, '}'))
 		return 1;
@@ -706,27 +680,51 @@ static int obj_pre_next(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
-static int obj_next_filter(struct ujson_buf *buf, struct ujson_val *res,
-                           const struct ujson_obj_list *list)
+static int obj_next_filter(ujson_reader *buf, struct ujson_val *res,
+                           const struct ujson_obj *obj, const struct ujson_obj *ign)
 {
+	const struct ujson_obj_attr *attr;
+
 	for (;;) {
 		if (copy_id_str(buf, res->id, sizeof(res->id)))
 			return 0;
 
-		if (list_lookup(list, res->id))
-			return get_value(buf, res);
+		res->idx = obj ? ujson_obj_lookup(obj, res->id) : (size_t)-1;
 
-		if (!skip_obj_val(buf))
-			return 0;
+		if (res->idx != (size_t)-1) {
+			if (!get_value(buf, res))
+				return 0;
+
+			attr = &obj->attrs[res->idx];
+
+			if (attr->type == UJSON_VOID)
+				return 1;
+
+			if (attr->type == res->type)
+				return 1;
+
+			if (attr->type == UJSON_FLOAT &&
+			    res->type == UJSON_INT)
+				return 1;
+
+			ujson_warn(buf, "Wrong '%s' type expected %s",
+				     attr->key, ujson_type_name(attr->type));
+		} else {
+			if (!skip_obj_val(buf))
+				return 0;
+
+			if (ign && ujson_obj_lookup(ign, res->id) == (size_t)-1)
+				ujson_warn(buf, "Unexpected key '%s'", res->id);
+		}
 
 		if (obj_pre_next(buf, res))
 			return 0;
 	}
 }
 
-static int check_err(struct ujson_buf *buf, struct ujson_val *res)
+static int check_err(ujson_reader *buf, struct ujson_val *res)
 {
-	if (ujson_is_err(buf)) {
+	if (ujson_reader_err(buf)) {
 		res->type = UJSON_VOID;
 		return 1;
 	}
@@ -734,8 +732,8 @@ static int check_err(struct ujson_buf *buf, struct ujson_val *res)
 	return 0;
 }
 
-int ujson_obj_next2(struct ujson_buf *buf, struct ujson_val *res,
-                    const struct ujson_obj_list *list)
+int ujson_obj_next_filter(ujson_reader *buf, struct ujson_val *res,
+                            const struct ujson_obj *obj, const struct ujson_obj *ign)
 {
 	if (check_err(buf, res))
 		return 0;
@@ -743,10 +741,10 @@ int ujson_obj_next2(struct ujson_buf *buf, struct ujson_val *res,
 	if (obj_pre_next(buf, res))
 		return 0;
 
-	return obj_next_filter(buf, res, list);
+	return obj_next_filter(buf, res, obj, ign);
 }
 
-int ujson_obj_next(struct ujson_buf *buf, struct ujson_val *res)
+int ujson_obj_next(ujson_reader *buf, struct ujson_val *res)
 {
 	if (check_err(buf, res))
 		return 0;
@@ -757,7 +755,7 @@ int ujson_obj_next(struct ujson_buf *buf, struct ujson_val *res)
 	return obj_next(buf, res);
 }
 
-static int any_first(struct ujson_buf *buf, char b)
+static int any_first(ujson_reader *buf, char b)
 {
 	if (eatws(buf)) {
 		ujson_err(buf, "Unexpected end");
@@ -779,8 +777,8 @@ static int any_first(struct ujson_buf *buf, char b)
 	return 0;
 }
 
-int ujson_obj_first2(struct ujson_buf *buf, struct ujson_val *res,
-                     const struct ujson_obj_list *list)
+int ujson_obj_first_filter(ujson_reader *buf, struct ujson_val *res,
+                             const struct ujson_obj *obj, const struct ujson_obj *ign)
 {
 	if (check_err(buf, res))
 		return 0;
@@ -791,10 +789,10 @@ int ujson_obj_first2(struct ujson_buf *buf, struct ujson_val *res,
 	if (check_end(buf, res, '}'))
 		return 0;
 
-	return obj_next_filter(buf, res, list);
+	return obj_next_filter(buf, res, obj, ign);
 }
 
-int ujson_obj_first(struct ujson_buf *buf, struct ujson_val *res)
+int ujson_obj_first(ujson_reader *buf, struct ujson_val *res)
 {
 	if (check_err(buf, res))
 		return 0;
@@ -808,12 +806,12 @@ int ujson_obj_first(struct ujson_buf *buf, struct ujson_val *res)
 	return obj_next(buf, res);
 }
 
-static int arr_next(struct ujson_buf *buf, struct ujson_val *res)
+static int arr_next(ujson_reader *buf, struct ujson_val *res)
 {
 	return get_value(buf, res);
 }
 
-int ujson_arr_first(struct ujson_buf *buf, struct ujson_val *res)
+int ujson_arr_first(ujson_reader *buf, struct ujson_val *res)
 {
 	if (check_err(buf, res))
 		return 0;
@@ -827,7 +825,7 @@ int ujson_arr_first(struct ujson_buf *buf, struct ujson_val *res)
 	return arr_next(buf, res);
 }
 
-int ujson_arr_next(struct ujson_buf *buf, struct ujson_val *res)
+int ujson_arr_next(ujson_reader *buf, struct ujson_val *res)
 {
 	if (check_err(buf, res))
 		return 0;
@@ -841,7 +839,7 @@ int ujson_arr_next(struct ujson_buf *buf, struct ujson_val *res)
 	return arr_next(buf, res);
 }
 
-void ujson_err(struct ujson_buf *buf, const char *fmt, ...)
+void ujson_err(ujson_reader *buf, const char *fmt, ...)
 {
 	va_list va;
 
@@ -850,31 +848,64 @@ void ujson_err(struct ujson_buf *buf, const char *fmt, ...)
 	va_end(va);
 }
 
-static void print_line(FILE *f, const char *line)
+static void vprintf_line(ujson_reader *buf, const char *fmt, va_list va)
 {
-	while (*line && *line != '\n')
-		fputc(*(line++), f);
+	char line[UJSON_ERR_MAX+1];
+
+	vsnprintf(line, sizeof(line), fmt, va);
+
+	line[UJSON_ERR_MAX] = 0;
+
+	buf->err_print(buf->err_print_priv, line);
 }
 
-static void print_spaces(FILE *f, size_t count)
+static void printf_line(ujson_reader *buf, const char *fmt, ...)
 {
-	while (count--)
-		fputc(' ', f);
+	va_list va;
+
+	va_start(va, fmt);
+	vprintf_line(buf, fmt, va);
+	va_end(va);
 }
 
-static void print_spaceline(FILE *f, const char *line, size_t count)
+static void printf_json_line(ujson_reader *buf, size_t line_nr, const char *buf_pos)
 {
+	char line[UJSON_ERR_MAX+1];
+	size_t plen, i;
+
+	plen = sprintf(line, "%03zu: ", line_nr);
+
+	for (i = 0; i < UJSON_ERR_MAX-plen && buf_pos[i] && buf_pos[i] != '\n'; i++)
+		line[i+plen] = buf_pos[i];
+
+	line[i+plen] = 0;
+
+	buf->err_print(buf->err_print_priv, line);
+}
+
+static void print_arrow(ujson_reader *buf, const char *buf_pos, size_t count)
+{
+	char line[count + 7];
 	size_t i;
 
+	/* The '000: ' prefix */
+	for (i = 0; i <= 5; i++)
+		line[i] = ' ';
+
 	for (i = 0; i < count; i++)
-		fputc(line[i] == '\t' ? '\t' : ' ', f);
+		line[i+5] = buf_pos[i] == '\t' ? '\t' : ' ';
+
+	line[count+5] = '^';
+	line[count+6] = 0;
+
+	buf->err_print(buf->err_print_priv, line);
 }
 
 #define ERR_LINES 10
 
 #define MIN(A, B) ((A < B) ? (A) : (B))
 
-static void print_snippet(FILE *f, struct ujson_buf *buf, const char *type)
+static void print_snippet(ujson_reader *buf, const char *type)
 {
 	ssize_t i;
 	const char *lines[ERR_LINES] = {};
@@ -895,44 +926,52 @@ static void print_snippet(FILE *f, struct ujson_buf *buf, const char *type)
 		last_off = buf->off - cur_off;
 	}
 
-	fprintf(f, "%s at line %zu\n\n", type, cur_line);
+	printf_line(buf, "%s at line %03zu", type, cur_line);
+	buf->err_print(buf->err_print_priv, "");
 
 	size_t idx = 0;
 
 	for (i = MIN(ERR_LINES, cur_line); i > 0; i--) {
 		idx = (cur_line - i) % ERR_LINES;
-		fprintf(f, "%03zu: ", cur_line - i + 1);
-		print_line(f, lines[idx]);
-		fputc('\n', f);
+		printf_json_line(buf, cur_line - i + 1, lines[idx]);
 	}
 
-	print_spaces(f, 5);
-	print_spaceline(f, lines[idx], last_off);
-	fprintf(f, "^\n");
+	print_arrow(buf, lines[idx], last_off);
 }
 
-void ujson_err_print(FILE *f, struct ujson_buf *buf)
+void ujson_err_print(ujson_reader *buf)
 {
-	print_snippet(f, buf, "Parse error");
-	fprintf(f, "%s\n", buf->err);
+	if (!buf->err_print)
+		return;
+
+	print_snippet(buf, "Parse error");
+	buf->err_print(buf->err_print_priv, buf->err);
 }
 
-void ujson_warn(FILE *f, struct ujson_buf *buf, const char *fmt, ...)
+void ujson_warn(ujson_reader *buf, const char *fmt, ...)
 {
 	va_list va;
 
-	print_snippet(f, buf, "Warning");
+	if (!buf->err_print)
+		return;
+
+	print_snippet(buf, "Warning");
 
 	va_start(va, fmt);
-	vfprintf(f, fmt, va);
+	vprintf_line(buf, fmt, va);
 	va_end(va);
-	fputc('\n', f);
 }
 
-struct ujson_buf *ujson_load(const char *path)
+void ujson_print(void *err_print_priv, const char *line)
+{
+	fputs(line, err_print_priv);
+	putc('\n', err_print_priv);
+}
+
+ujson_reader *ujson_reader_load(const char *path)
 {
 	int fd = open(path, O_RDONLY);
-	struct ujson_buf *ret;
+	ujson_reader *ret;
 	ssize_t res;
 	off_t len, off = 0;
 
@@ -950,7 +989,7 @@ struct ujson_buf *ujson_load(const char *path)
 		goto err0;
 	}
 
-	ret = malloc(sizeof(struct ujson_buf) + len + 1);
+	ret = malloc(sizeof(ujson_reader) + len + 1);
 	if (!ret) {
 		fprintf(stderr, "malloc() failed\n");
 		goto err0;
@@ -962,6 +1001,8 @@ struct ujson_buf *ujson_load(const char *path)
 	ret->len = len;
 	ret->max_depth = UJSON_RECURSION_MAX;
 	ret->json = ret->buf;
+	ret->err_print = UJSON_ERR_PRINT;
+	ret->err_print_priv = UJSON_ERR_PRINT_PRIV;
 
 	while (off < len) {
 		res = read(fd, ret->buf + off, len - off);
@@ -983,7 +1024,37 @@ err0:
 	return NULL;
 }
 
-void ujson_free(struct ujson_buf *buf)
+void ujson_reader_finish(ujson_reader *self)
+{
+	if (ujson_reader_err(self))
+		ujson_err_print(self);
+	else if (!ujson_reader_consumed(self))
+		ujson_warn(self, "Garbage after JSON string!");
+}
+
+void ujson_reader_free(ujson_reader *buf)
 {
 	free(buf);
+}
+
+ujson_val *ujson_val_alloc(size_t buf_size)
+{
+	buf_size = buf_size == 0 ? 4096 : buf_size;
+	ujson_val *ret;
+
+	ret = malloc(sizeof(ujson_val) + buf_size);
+	if (!ret)
+		return NULL;
+
+	memset(ret, 0, sizeof(ujson_val) + buf_size);
+
+	ret->buf = ret->buf__;
+	ret->buf_size = buf_size;
+
+	return ret;
+}
+
+void ujson_val_free(ujson_val *self)
+{
+	free(self);
 }

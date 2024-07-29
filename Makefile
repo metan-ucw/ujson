@@ -1,9 +1,15 @@
-CFLAGS=-W -Wall -O2
+CFLAGS=-Wextra -Wall -O2 -I.
+CSOURCES=ujson_reader.c ujson_writer.c ujson_common.c
+OBJS=$(CSOURCES:.c=.o)
+LIB=libujson.a
 
-all: ujson.o
+all: $(LIB)
 
-test: ujson.o
+$(LIB): $(OBJS)
+	$(AR) rcs $@ $^
+
+test: $(LIB)
 	cd tests && make
 
 clean:
-	rm -f *.o
+	rm -f *.o $(LIB)

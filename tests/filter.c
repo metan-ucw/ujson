@@ -6,16 +6,17 @@
 #include <stdio.h>
 #include "../ujson.h"
 
-static struct ujson_obj_list filter = {
-	.key_list = (const char *const []) {
-		"aleph",
-		"alpha",
-		"car",
-		"carlson",
-		"zzz",
-	},
-	.key_list_len = 5,
-	.flags = UJSON_OBJ_LIST_FILTER,
+static struct ujson_obj_attr filter_attrs[] = {
+	UJSON_OBJ_ATTR("aleph", UJSON_VOID),
+	UJSON_OBJ_ATTR("alpha", UJSON_VOID),
+	UJSON_OBJ_ATTR("car", UJSON_VOID),
+	UJSON_OBJ_ATTR("carlson", UJSON_VOID),
+	UJSON_OBJ_ATTR("zzz", UJSON_VOID),
+};
+
+static struct ujson_obj filter = {
+	.attrs = filter_attrs,
+	.attr_cnt = UJSON_ARRAY_SIZE(filter_attrs)
 };
 
 static void do_padd(unsigned int padd)
@@ -24,9 +25,9 @@ static void do_padd(unsigned int padd)
 		putchar(' ');
 }
 
-static void dump_arr(struct ujson_buf *buf, unsigned int padd, const char *id);
+static void dump_arr(struct ujson_reader *reader, unsigned int padd, const char *id);
 
-static void dump_obj(struct ujson_buf *buf, unsigned int padd, const char *id)
+static void dump_obj(struct ujson_reader *reader, unsigned int padd, const char *id)
 {
 	char sbuf[128];
 	struct ujson_val json = {.buf = sbuf, .buf_size = sizeof(sbuf)};
@@ -37,17 +38,17 @@ static void dump_obj(struct ujson_buf *buf, unsigned int padd, const char *id)
 	else
 		printf("{\n");
 
-	UJSON_OBJ_FOREACH2(buf, &json, &filter) {
+	UJSON_OBJ_FOREACH_FILTER(reader, &json, &filter, NULL) {
 		switch(json.type) {
 		case UJSON_ARR:
-			dump_arr(buf, padd + 1, json.id);
+			dump_arr(reader, padd + 1, json.id);
 		break;
 		case UJSON_OBJ:
-			dump_obj(buf, padd + 1, json.id);
+			dump_obj(reader, padd + 1, json.id);
 		break;
 		case UJSON_INT:
 			do_padd(padd + 1);
-			printf("%s: %li\n", json.id, json.val_int);
+			printf("%s: %lli\n", json.id, json.val_int);
 		break;
 		case UJSON_FLOAT:
 			do_padd(padd + 1);
@@ -74,7 +75,7 @@ static void dump_obj(struct ujson_buf *buf, unsigned int padd, const char *id)
 	printf("}\n");
 }
 
-static void dump_arr(struct ujson_buf *buf, unsigned int padd, const char *id)
+static void dump_arr(struct ujson_reader *reader, unsigned int padd, const char *id)
 {
 	char sbuf[128];
 	struct ujson_val json = {.buf = sbuf, .buf_size = sizeof(sbuf)};
@@ -85,17 +86,17 @@ static void dump_arr(struct ujson_buf *buf, unsigned int padd, const char *id)
 	else
 		printf("[\n");
 
-	UJSON_ARR_FOREACH(buf, &json) {
+	UJSON_ARR_FOREACH(reader, &json) {
 		switch(json.type) {
 		case UJSON_ARR:
-			dump_arr(buf, padd + 1, NULL);
+			dump_arr(reader, padd + 1, NULL);
 		break;
 		case UJSON_OBJ:
-			dump_obj(buf, padd + 1, NULL);
+			dump_obj(reader, padd + 1, NULL);
 		break;
 		case UJSON_INT:
 			do_padd(padd + 1);
-			printf("%li\n", json.val_int);
+			printf("%lli\n", json.val_int);
 		break;
 		case UJSON_FLOAT:
 			do_padd(padd + 1);
@@ -124,38 +125,29 @@ static void dump_arr(struct ujson_buf *buf, unsigned int padd, const char *id)
 
 int main(int argc, char *argv[])
 {
-	struct ujson_buf *buf;
+	struct ujson_reader *reader;
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s foo.json\n", argv[0]);
 		return 1;
 	}
 
-	buf = ujson_load(argv[1]);
-	if (!buf)
+	reader = ujson_reader_load(argv[1]);
+	if (!reader)
 		return 1;
 
-	switch (ujson_start(buf)) {
+	switch (ujson_reader_start(reader)) {
 	case UJSON_ARR:
-		dump_arr(buf, 0, NULL);
+		dump_arr(reader, 0, NULL);
 	break;
 	case UJSON_OBJ:
-		dump_obj(buf, 0, NULL);
+		dump_obj(reader, 0, NULL);
 	break;
 	default:
 	break;
 	}
 
-	if (ujson_is_err(buf)) {
-		ujson_err_print(stderr, buf);
-		return 1;
-	}
-
-	if (!ujson_empty(buf)) {
-		ujson_err(buf, "Garbage after JSON string!");
-		ujson_err_print(stderr, buf);
-		return 1;
-	}
+	ujson_reader_finish(reader);
 
 	return 0;
 }

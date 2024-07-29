@@ -3,7 +3,7 @@ UJSON
 
 UJSON is:
 
-- Complete and simple JSON parser written in C
+- Complete and simple JSON reader and writer written in C
 - Produces nice and human readable error messages
 - Passes [JSONTestSuite](https://github.com/nst/JSONTestSuite)
 
@@ -19,7 +19,7 @@ The parser is started by a call to `ujson_start()` function in order to
 determine if first element in the buffer is object or an array.
 
 ```c
-	switch (ujson_start(buf)) {
+	switch (ujson_reader_start(reader)) {
 	case UJSON_ARR:
 		//parse array
 	break;
@@ -30,19 +30,19 @@ determine if first element in the buffer is object or an array.
 	break;
 	}
 
-	if (ujson_is_err(buf))
-		ujson_err_print(stderr, buf);
+	if (ujson_reader_err(reader))
+		ujson_err_print(reader);
 
 ```
 
 Then you can loop recursively over arrays and objects with:
 
 ```c
-        char sbuf[128];
-        struct ujson json = {.buf = sbuf, .buf_size = sizeof(sbuf)};
+	char sbuf[128];
+	struct ujson_val json = {.buf = sbuf, .buf_size = sizeof(sbuf)};
 
-        UJSON_OBJ_FOREACH(buf, &json) {
-                switch (json.type) {
+    UJSON_OBJ_FOREACH(reader, &json) {
+        switch (json.type) {
 		case UJSON_OBJ:
 			//parse object
 		break;
