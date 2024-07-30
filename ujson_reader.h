@@ -345,7 +345,7 @@ int ujson_obj_next_filter(ujson_reader *self, struct ujson_val *res,
 #define UJSON_OBJ_FOREACH_FILTER(self, res, obj, ign) \
 	for (ujson_obj_first_filter(self, res, obj, ign); \
 	     ujson_val_valid(res); \
-	     ujson_obj_next_filter(buf, res, obj, ign))
+	     ujson_obj_next_filter(self, res, obj, ign))
 
 /**
  * @brief Skips parsing of a JSON object.
