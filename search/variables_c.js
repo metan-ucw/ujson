@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ujson_5fempty_5fobj_176',['ujson_empty_obj',['../ujson__reader_8h.html#aef31fe3a0a8bf4bf833059a544714c36',1,'ujson_reader.h']]]
+  ['type_175',['type',['../structujson__val.html#ae293b7459182e3b07b878b12722aa830',1,'ujson_val::type()'],['../structujson__obj__attr.html#a1584d3fa55e689edcb5f435b64f6896d',1,'ujson_obj_attr::type()']]]
 ];

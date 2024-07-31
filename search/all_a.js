@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['strict_13',['strict',['../structujson__reader.html#a7007f7063202471609f6bb971280f36a',1,'ujson_reader']]],
-  ['sub_5foff_14',['sub_off',['../structujson__reader.html#a6de9bffa3c97e2c9fcaf504a091086f8',1,'ujson_reader']]]
+  ['off_12',['off',['../structujson__reader.html#ae14b8632d5c8ce464c2462b5b12a8587',1,'ujson_reader']]],
+  ['out_13',['out',['../structujson__writer.html#ad039df84feff9f5d608422d36da81969',1,'ujson_writer']]]
 ];
