@@ -25,16 +25,24 @@
  *
  * @param buf A pointer to a buffer with JSON data.
  * @param buf_len A JSON data buffer lenght.
+ * @param rflags enum ujson_reader_flags.
  *
  * @return An ujson_reader initialized with default values.
  */
-#define UJSON_READER_INIT(buf, buf_len) { \
+#define UJSON_READER_INIT(buf, buf_len, rflags) { \
 	.max_depth = UJSON_RECURSION_MAX, \
 	.err_print = UJSON_ERR_PRINT, \
 	.err_print_priv = UJSON_ERR_PRINT_PRIV, \
 	.json = buf, \
 	.len = buf_len, \
+	.flags = rflags \
 }
+
+/** @brief Reader flags. */
+enum ujson_reader_flags {
+	/** @brief If set warnings are treated as errors. */
+	UJSON_READER_STRICT = 0x01,
+};
 
 /**
  * @brief A JSON parser internal state.
@@ -53,6 +61,9 @@ struct ujson_reader {
 	/** Maximal recursion depth */
 	unsigned int max_depth;
 
+	/** Reader flags. */
+	enum ujson_reader_flags flags;
+
 	/** Handler to print errors and warnings */
 	void (*err_print)(void *err_print_priv, const char *line);
 	void *err_print_priv;
@@ -60,6 +71,19 @@ struct ujson_reader {
 	char err[UJSON_ERR_MAX];
 	char buf[];
 };
+
+/**
+ * @brief An ujson_val initializer.
+ *
+ * @param sbuf A pointer to a buffer used for string values.
+ * @param sbuf_size A length of the buffer used for string values.
+ *
+ * @return An ujson_val initialized with default values.
+ */
+#define UJSON_VAL_INIT(sbuf, sbuf_size) { \
+	.buf = sbuf, \
+	.buf_size = sbuf_size, \
+}
 
 /**
  * @brief A parsed JSON key value pair.
@@ -301,6 +325,13 @@ int ujson_obj_first_filter(ujson_reader *self, struct ujson_val *res,
                            const struct ujson_obj *obj, const struct ujson_obj *ign);
 
 /**
+ * @brief An empty object attribute list.
+ *
+ * To be passed to UJSON_OBJ_FOREACH_FITLER() as ignore list.
+ */
+extern const struct ujson_obj *ujson_empty_obj;
+
+/**
  * @brief Parses next value from a JSON object with attribute lists.
  *
  * If the res->type is UJSON_OBJ or UJSON_ARR it has to be parsed or skipped
@@ -309,7 +340,8 @@ int ujson_obj_first_filter(ujson_reader *self, struct ujson_val *res,
  * @param self An ujson_reader.
  * @param res An ujson_val to store the parsed value to.
  * @param obj An ujson_obj object description.
- * @param ign A list of keys to ignore.
+ * @param ign A list of keys to ignore. If set to NULL all unknown keys are
+ *            ignored, if set to ujson_empty_obj all unknown keys produce warnings.
  *
  * @return Zero on success, non-zero otherwise.
  */
@@ -442,6 +474,9 @@ static inline ujson_reader_state ujson_reader_state_save(ujson_reader *self)
  */
 static inline void ujson_reader_state_load(ujson_reader *self, ujson_reader_state state)
 {
+	if (ujson_reader_err(self))
+		return;
+
 	self->off = state.off;
 	self->sub_off = state.off;
 	self->depth = state.depth;

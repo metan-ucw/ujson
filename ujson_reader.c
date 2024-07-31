@@ -15,6 +15,9 @@
 #include "ujson_utf.h"
 #include "ujson_reader.h"
 
+static const struct ujson_obj empty = {};
+const struct ujson_obj *ujson_empty_obj = &empty;
+
 static inline int buf_empty(ujson_reader *buf)
 {
 	return buf->off >= buf->len;
@@ -616,11 +619,14 @@ static inline const char *list_elem(const void *arr, size_t memb_size, size_t id
 }
 
 size_t ujson_lookup(const void *arr, size_t memb_size, size_t list_len,
-                      const char *key)
+                    const char *key)
 {
 	size_t l = 0;
 	size_t r = list_len-1;
 	size_t mid = -1;
+
+	if (!list_len)
+		return (size_t)-1;
 
 	while (r - l > 1) {
 		mid = (l+r)/2;
@@ -671,6 +677,9 @@ static int obj_next(ujson_reader *buf, struct ujson_val *res)
 
 static int obj_pre_next(ujson_reader *buf, struct ujson_val *res)
 {
+	if (ujson_reader_err(buf))
+		return 1;
+
 	if (check_end(buf, res, '}'))
 		return 1;
 
@@ -839,12 +848,17 @@ int ujson_arr_next(ujson_reader *buf, struct ujson_val *res)
 	return arr_next(buf, res);
 }
 
+static void ujson_err_va(ujson_reader *buf, const char *fmt, va_list va)
+{
+	vsnprintf(buf->err, UJSON_ERR_MAX, fmt, va);
+}
+
 void ujson_err(ujson_reader *buf, const char *fmt, ...)
 {
 	va_list va;
 
 	va_start(va, fmt);
-	vsnprintf(buf->err, UJSON_ERR_MAX, fmt, va);
+	ujson_err_va(buf, fmt, va);
 	va_end(va);
 }
 
@@ -951,6 +965,13 @@ void ujson_err_print(ujson_reader *buf)
 void ujson_warn(ujson_reader *buf, const char *fmt, ...)
 {
 	va_list va;
+
+	if (buf->flags & UJSON_READER_STRICT) {
+		va_start(va, fmt);
+		ujson_err_va(buf, fmt, va);
+		va_end(va);
+		return;
+	}
 
 	if (!buf->err_print)
 		return;
