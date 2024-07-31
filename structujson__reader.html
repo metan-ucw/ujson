@@ -88,13 +88,15 @@ Data Fields</h2></td></tr>
 <tr class="separator:a8e081b314b7038b19829f6ab7546a8ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09b8febbf6022a07dfb89624e6944579"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structujson__reader.html#a09b8febbf6022a07dfb89624e6944579">max_depth</a></td></tr>
 <tr class="separator:a09b8febbf6022a07dfb89624e6944579"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7007f7063202471609f6bb971280f36a"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structujson__reader.html#a7007f7063202471609f6bb971280f36a">strict</a>:1</td></tr>
+<tr class="separator:a7007f7063202471609f6bb971280f36a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae377b51e11d3f459064433ea44342c30"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structujson__reader.html#ae377b51e11d3f459064433ea44342c30">err_print</a> )(void *err_print_priv, const char *line)</td></tr>
 <tr class="separator:ae377b51e11d3f459064433ea44342c30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A JSON parser internal state. </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00042">42</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00044">44</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a8e081b314b7038b19829f6ab7546a8ef"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8e081b314b7038b19829f6ab7546a8ef">&#9670;&nbsp;</a></span>depth</h2>
@@ -109,7 +111,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>Recursion depth increased when array/object is entered decreased on leave </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00052">52</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00054">54</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -126,7 +128,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>Handler to print errors and warnings </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00057">57</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00062">62</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -143,7 +145,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>Pointer to a null terminated JSON string </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00044">44</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00046">46</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -160,7 +162,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>A length of the JSON string </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00046">46</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00048">48</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -177,7 +179,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>Maximal recursion depth </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00054">54</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00056">56</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -194,7 +196,24 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>A current offset into the JSON string </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00048">48</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00050">50</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+
+</div>
+</div>
+<a id="a7007f7063202471609f6bb971280f36a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7007f7063202471609f6bb971280f36a">&#9670;&nbsp;</a></span>strict</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int ujson_reader::strict</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>If set warnings are turned into failures. </p>
+
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00059">59</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -211,7 +230,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 <p>An offset to the start of the last array or object </p>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00050">50</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00052">52</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
