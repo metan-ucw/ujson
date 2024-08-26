@@ -311,6 +311,10 @@ static inline size_t ujson_obj_lookup(const ujson_obj *obj, const char *key)
 #define UJSON_OBJ_ATTR(keyv, typev) \
 	{.key = keyv, .type = typev}
 
+/** @brief An ujson_obj_attr intializer with an array index. */
+#define UJSON_OBJ_ATTR_IDX(key_idx, keyv, typev) \
+	[key_idx] = {.key = keyv, .type = typev}
+
 /**
  * @brief Starts parsing of a JSON object with attribute lists.
  *
