@@ -114,6 +114,10 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__reader_8h.html#a7d82122b815a2a899d565014bcc379b8">UJSON_OBJ_ATTR</a>(keyv,  typev)&#160;&#160;&#160;	{.key = keyv, .type = typev}</td></tr>
 <tr class="memdesc:a7d82122b815a2a899d565014bcc379b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <a class="el" href="structujson__obj__attr.html" title="A JSON object attribute description i.e. key and type.">ujson_obj_attr</a> initializer. <br /></td></tr>
 <tr class="separator:a7d82122b815a2a899d565014bcc379b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad98585ea60fc3ec34a033fbc04a074d3"><td class="memItemLeft" align="right" valign="top"><a id="ad98585ea60fc3ec34a033fbc04a074d3"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__reader_8h.html#ad98585ea60fc3ec34a033fbc04a074d3">UJSON_OBJ_ATTR_IDX</a>(key_idx,  keyv,  typev)&#160;&#160;&#160;	[key_idx] = {.key = keyv, .type = typev}</td></tr>
+<tr class="memdesc:ad98585ea60fc3ec34a033fbc04a074d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <a class="el" href="structujson__obj__attr.html" title="A JSON object attribute description i.e. key and type.">ujson_obj_attr</a> intializer with an array index. <br /></td></tr>
+<tr class="separator:ad98585ea60fc3ec34a033fbc04a074d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba0399b65201fe1d58d9220b5baf6dc4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ujson__reader_8h.html#aba0399b65201fe1d58d9220b5baf6dc4">UJSON_OBJ_FOREACH_FILTER</a>(self,  res,  obj,  ign)</td></tr>
 <tr class="memdesc:aba0399b65201fe1d58d9220b5baf6dc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">A loop over a JSON object with a pre-defined list of expected attributes.  <a href="ujson__reader_8h.html#aba0399b65201fe1d58d9220b5baf6dc4">More...</a><br /></td></tr>
 <tr class="separator:aba0399b65201fe1d58d9220b5baf6dc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,7 +269,7 @@ Variables</h2></td></tr>
 <div class="line">     ...</div>
 <div class="line">}</div>
 <div class="ttc" id="aujson__common_8h_html_a0ac63e5b59503a9339305e7d02568e0e"><div class="ttname"><a href="ujson__common_8h.html#a0ac63e5b59503a9339305e7d02568e0e">ujson_type_name</a></div><div class="ttdeci">const char * ujson_type_name(enum ujson_type type)</div><div class="ttdoc">Returns type name.</div></div>
-<div class="ttc" id="aujson__reader_8h_html_a06e7b6d725d25d47984388dde05a377d"><div class="ttname"><a href="ujson__reader_8h.html#a06e7b6d725d25d47984388dde05a377d">UJSON_ARR_FOREACH</a></div><div class="ttdeci">#define UJSON_ARR_FOREACH(self, res)</div><div class="ttdoc">A loop over a JSON array.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__reader_8h_source.html#l00427">ujson_reader.h:427</a></div></div>
+<div class="ttc" id="aujson__reader_8h_html_a06e7b6d725d25d47984388dde05a377d"><div class="ttname"><a href="ujson__reader_8h.html#a06e7b6d725d25d47984388dde05a377d">UJSON_ARR_FOREACH</a></div><div class="ttdeci">#define UJSON_ARR_FOREACH(self, res)</div><div class="ttdoc">A loop over a JSON array.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__reader_8h_source.html#l00431">ujson_reader.h:431</a></div></div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>An <a class="el" href="structujson__reader.html" title="A JSON parser internal state.">ujson_reader</a>. </td></tr>
@@ -274,7 +278,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00427">427</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00431">431</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -387,7 +391,7 @@ Variables</h2></td></tr>
 <div class="ttc" id="aujson__common_8h_html_aeb1292f08da5544e3d826f2ebf543cb0a936f450230a9ffcbf0a956694d01eaaa"><div class="ttname"><a href="ujson__common_8h.html#aeb1292f08da5544e3d826f2ebf543cb0a936f450230a9ffcbf0a956694d01eaaa">UJSON_BOOL</a></div><div class="ttdeci">@ UJSON_BOOL</div><div class="ttdoc">A boolean.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__common_8h_source.html#l00035">ujson_common.h:35</a></div></div>
 <div class="ttc" id="aujson__common_8h_html_aeb1292f08da5544e3d826f2ebf543cb0aa4f092cc058d843b0296c52612550b53"><div class="ttname"><a href="ujson__common_8h.html#aeb1292f08da5544e3d826f2ebf543cb0aa4f092cc058d843b0296c52612550b53">UJSON_INT</a></div><div class="ttdeci">@ UJSON_INT</div><div class="ttdoc">An integer.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__common_8h_source.html#l00031">ujson_common.h:31</a></div></div>
 <div class="ttc" id="aujson__reader_8h_html_a7d82122b815a2a899d565014bcc379b8"><div class="ttname"><a href="ujson__reader_8h.html#a7d82122b815a2a899d565014bcc379b8">UJSON_OBJ_ATTR</a></div><div class="ttdeci">#define UJSON_OBJ_ATTR(keyv, typev)</div><div class="ttdoc">An ujson_obj_attr initializer.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__reader_8h_source.html#l00311">ujson_reader.h:311</a></div></div>
-<div class="ttc" id="aujson__reader_8h_html_aba0399b65201fe1d58d9220b5baf6dc4"><div class="ttname"><a href="ujson__reader_8h.html#aba0399b65201fe1d58d9220b5baf6dc4">UJSON_OBJ_FOREACH_FILTER</a></div><div class="ttdeci">#define UJSON_OBJ_FOREACH_FILTER(self, res, obj, ign)</div><div class="ttdoc">A loop over a JSON object with a pre-defined list of expected attributes.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__reader_8h_source.html#l00377">ujson_reader.h:377</a></div></div>
+<div class="ttc" id="aujson__reader_8h_html_aba0399b65201fe1d58d9220b5baf6dc4"><div class="ttname"><a href="ujson__reader_8h.html#aba0399b65201fe1d58d9220b5baf6dc4">UJSON_OBJ_FOREACH_FILTER</a></div><div class="ttdeci">#define UJSON_OBJ_FOREACH_FILTER(self, res, obj, ign)</div><div class="ttdoc">A loop over a JSON object with a pre-defined list of expected attributes.</div><div class="ttdef"><b>Definition:</b> <a href="ujson__reader_8h_source.html#l00381">ujson_reader.h:381</a></div></div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">self</td><td>An <a class="el" href="structujson__reader.html" title="A JSON parser internal state.">ujson_reader</a>. </td></tr>
@@ -398,7 +402,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00377">377</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00381">381</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -1022,7 +1026,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Non-zero if whole buffer was consumed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00534">534</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00538">538</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -1179,7 +1183,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00490">490</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00494">494</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
@@ -1254,7 +1258,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00475">475</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00479">479</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 <p class="reference">References <a class="el" href="ujson__reader_8h.html#a01b17ab102a0044c2a701d9d3d57b7f5">ujson_reader_err()</a>.</p>
 
@@ -1294,7 +1298,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A state that points to a start of the last object or array. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00456">456</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ujson__reader_8h_source.html#l00460">460</a> of file <a class="el" href="ujson__reader_8h_source.html">ujson_reader.h</a>.</p>
 
 </div>
 </div>
