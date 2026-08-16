@@ -65,14 +65,14 @@ static inline uint32_t ujson_utf8_next(const char **str)
 	if (UJSON_UTF8_IS_3BYTE(s0))
 		return (s0 & 0x0f)<<12 | s1<<6 | s2;
 
-	(*str)++;
-
 	uint32_t s3 = *str[0];
 
-	if (!UJSON_UTF8_IS_NBYTE(s2))
+	if (!UJSON_UTF8_IS_NBYTE(s3))
 		return 0;
 
 	s3 &= UJSON_UTF8_NBYTE_MASK;
+
+	(*str)++;
 
 	if (UJSON_UTF8_IS_4BYTE(s0))
 		return (s0 & 0x07)<<18 | s1<<12 | s2<<6 | s3;
