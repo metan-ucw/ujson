@@ -1,0 +1,6 @@
+Parse error at line 002
+
+001: {
+002: 	"overflow": -333333333333333333333
+     	                                 ^
+Integer overflow
