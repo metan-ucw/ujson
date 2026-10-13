@@ -398,13 +398,20 @@ static int out_writer_file_write(ujson_writer *self, int fd, const char *buf, ss
 {
 	do {
 		ssize_t ret = write(fd, buf, buf_len);
-		if (ret <= 0) {
+		if (ret < 0) {
 			err(self, "Failed to write to a file");
+			return 1;
+		}
+
+		if (ret == 0) {
+			err(self, "The write() syscall returned 0");
+			errno = EAGAIN;
 			return 1;
 		}
 
 		if (ret > buf_len) {
 			err(self, "Wrote more bytes than requested?!");
+			errno = EIO;
 			return 1;
 		}
 
