@@ -1,0 +1,7 @@
+Parse error at line 003
+
+001: {
+002: 	"foo\": 3
+003: }
+     ^
+Unterminated ID string

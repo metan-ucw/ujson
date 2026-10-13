@@ -258,31 +258,15 @@ static int copy_str(ujson_reader *buf, char *str, size_t len)
 
 static int copy_id_str(ujson_reader *buf, char *str, size_t len)
 {
-	size_t pos = 0;
-
 	if (eatws(buf))
 		goto err0;
 
-	if (!eatb(buf, '"'))
+	if (peekb(buf) != '"')
 		goto err0;
 
-	for (;;) {
-		if (buf_empty(buf)) {
-			ujson_err(buf, "Unterminated ID string");
-			return 1;
-		}
-
-		if (eatb(buf, '"')) {
-			str[pos] = 0;
-			break;
-		}
-
-		if (pos >= len-1) {
-			ujson_err(buf, "ID string too long");
-			return 1;
-		}
-
-		str[pos++] = getb(buf);
+	if (copy_str(buf, str, len)) {
+		ujson_err(buf, "Unterminated ID string");
+		return 1;
 	}
 
 	if (eatws(buf))
@@ -709,8 +693,10 @@ static int skip_obj_val(ujson_reader *buf)
 
 static int obj_next(ujson_reader *buf, struct ujson_val *res)
 {
-	if (copy_id_str(buf, res->id, sizeof(res->id)))
+	if (copy_id_str(buf, res->id, sizeof(res->id))) {
+		res->type = UJSON_VOID;
 		return 0;
+	}
 
 	return get_value(buf, res);
 }
@@ -735,8 +721,10 @@ static int obj_next_filter(ujson_reader *buf, struct ujson_val *res,
 	const struct ujson_obj_attr *attr;
 
 	for (;;) {
-		if (copy_id_str(buf, res->id, sizeof(res->id)))
+		if (copy_id_str(buf, res->id, sizeof(res->id))) {
+			res->type = UJSON_VOID;
 			return 0;
+		}
 
 		res->idx = obj ? ujson_obj_lookup(obj, res->id) : (size_t)-1;
 

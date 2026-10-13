@@ -1,8 +1,7 @@
-Parse error at line 004
+Parse error at line 003
 
 001: {
 002: 	"a    
 003: 
-004: 
      ^
 Unterminated ID string
