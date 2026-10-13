@@ -1032,6 +1032,11 @@ ujson_reader *ujson_reader_load(const char *path)
 			goto err1;
 		}
 
+		if (res == 0) {
+			fprintf(stderr, "read() returned 0 (file was truncated?)\n");
+			goto err1;
+		}
+
 		off += res;
 	}
 
