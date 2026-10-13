@@ -1,0 +1,6 @@
+Parse error at line 002
+
+001: {
+002: 	"reversed": "\ud8d3\f"
+     	                   ^
+Unpaired high surrogate

@@ -134,6 +134,34 @@ static unsigned int parse_ucode_esc(ujson_reader *buf, char *str,
 	if (ucode < 0)
 		return 0;
 
+	if (ucode >= 0xdc00 && ucode <= 0xdfff) {
+		ujson_err(buf, "Unpaired low surrogate");
+		return 0;
+	}
+
+	if (ucode >= 0xd800 && ucode <= 0xdbff) {
+		int32_t low;
+
+		if (peekb(buf) != '\\' || peekb_off(buf, 1) != 'u') {
+			ujson_err(buf, "Unpaired high surrogate");
+			return 0;
+		}
+
+		getb(buf);
+		getb(buf);
+
+		low = parse_ucode_cp(buf);
+		if (low < 0)
+			return 0;
+
+		if (low < 0xdc00 || low > 0xdfff) {
+			ujson_err(buf, "Invalid low surrogate in escape sequence");
+			return 0;
+		}
+
+		ucode = 0x10000 + (((ucode - 0xd800) << 10) | (low - 0xdc00));
+	}
+
 	if (!str)
 		return ujson_utf8_bytes(ucode);
 

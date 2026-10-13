@@ -1,0 +1,6 @@
+Parse error at line 002
+
+001: {
+002: 	"reversed": "\uDE80\uD83D"
+     	                   ^
+Unpaired low surrogate
