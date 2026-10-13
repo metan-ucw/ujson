@@ -135,7 +135,7 @@ static unsigned int parse_ucode_esc(ujson_reader *buf, char *str,
 		return 0;
 
 	if (!str)
-		return ucode;
+		return ujson_utf8_bytes(ucode);
 
 	if (ujson_utf8_bytes(ucode) + 1 >= len - off) {
 		ujson_err(buf, "String buffer too short!");
