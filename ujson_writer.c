@@ -97,13 +97,6 @@ static inline int out_ch(ujson_writer *self, char ch)
 	return out(self, &ch, 1);
 }
 
-#define ESC_FLUSH(esc_char) do {\
-	out(self, val, i); \
-	val += i + 1; \
-	i = 0; \
-	out_str(self, esc_char); \
-} while (0)
-
 static inline int out_esc_str(ujson_writer *self, const char *val)
 {
 	if (out_ch(self, '"'))
@@ -116,32 +109,46 @@ static inline int out_esc_str(ujson_writer *self, const char *val)
 		next_chsz = ujson_utf8_next_chsz(val, i);
 
 		if (next_chsz == 1) {
+			char *esc_str = NULL;
+
 			switch (val[i]) {
 			case '\"':
-				ESC_FLUSH("\\\"");
+				esc_str = "\\\"";
 			break;
 			case '\\':
-				ESC_FLUSH("\\\\");
+				esc_str = "\\\\";
 			break;
 			case '/':
-				ESC_FLUSH("\\/");
+				esc_str = "\\/";
 			break;
 			case '\b':
-				ESC_FLUSH("\\b");
+				esc_str = "\\b";
 			break;
 			case '\f':
-				ESC_FLUSH("\\f");
+				esc_str = "\\f";
 			break;
 			case '\n':
-				ESC_FLUSH("\\n");
+				esc_str = "\\n";
 			break;
 			case '\r':
-				ESC_FLUSH("\\r");
+				esc_str = "\\r";
 			break;
 			case '\t':
-				ESC_FLUSH("\\t");
+				esc_str = "\\t";
 			break;
-			default:
+			}
+
+			/* flush buffer, write escape */
+			if (esc_str) {
+				if (out(self, val, i))
+					return 1;
+
+				val += i + 1;
+				i = 0;
+
+				if (out_str(self, esc_str))
+					return 1;
+			} else {
 				i += next_chsz;
 			}
 		} else {
