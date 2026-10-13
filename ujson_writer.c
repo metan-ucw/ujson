@@ -396,6 +396,9 @@ struct json_writer_file {
 
 static int out_writer_file_write(ujson_writer *self, int fd, const char *buf, ssize_t buf_len)
 {
+	if (!buf_len)
+		return 0;
+
 	do {
 		ssize_t ret = write(fd, buf, buf_len);
 		if (ret < 0) {
@@ -427,8 +430,15 @@ static int out_writer_file(ujson_writer *self, const char *buf, size_t buf_len)
 	size_t buf_size = sizeof(writer_file->buf);
 	size_t buf_avail = buf_size - writer_file->buf_used;
 
-	if (buf_len > buf_size/4)
+	if (buf_len > buf_size / 4) {
+		if (out_writer_file_write(self, writer_file->fd,
+					  writer_file->buf, writer_file->buf_used))
+			return 1;
+
+		writer_file->buf_used = 0;
+
 		return out_writer_file_write(self, writer_file->fd, buf, buf_len);
+	}
 
 	if (buf_len >= buf_avail) {
 		if (out_writer_file_write(self, writer_file->fd,
